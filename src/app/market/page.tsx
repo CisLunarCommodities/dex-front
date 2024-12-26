@@ -115,7 +115,7 @@ export default function MarketPage() {
                       {getResourceIcon(item.symbol)}
                       <div>
                         <div className="font-bold">{item.symbol}</div>
-                        <div className="text-sm opacity-60">{getResourceName(item.symbol)}</div>
+                        <div className="text-sm opacity-60">{getResourceIcon(item.symbol)}</div>
                       </div>
                     </div>
                   </td>
@@ -205,7 +205,7 @@ function getResourceIcon(symbol: string): string {
   const icons: Record<string, string> = {
     'LOX': '🌬️',
     'H2O': '💧',
-    'IRON': '⛏️',
+    'IRON': '⛏��',
     'H3': '⚛️',
   }
   return icons[symbol] || '🪨'

@@ -5,6 +5,8 @@ import {usePathname} from 'next/navigation'
 import * as React from 'react'
 import {ReactNode} from 'react'
 import toast, {Toaster} from 'react-hot-toast'
+import { useAffiliate } from '@/lib/affiliate'
+import { IconUsers } from '@tabler/icons-react'
 
 import {AccountChecker} from '../account/account-ui'
 import {ClusterChecker, ClusterUiSelect, ExplorerLink} from '../cluster/cluster-ui'
@@ -12,6 +14,7 @@ import {WalletButton} from '../solana/solana-provider'
 
 export function UiLayout({children}: {children: ReactNode}) {
   const pathname = usePathname()
+  const { affiliate } = useAffiliate()
 
   return (
     <div className="h-full flex flex-col">
@@ -32,6 +35,19 @@ export function UiLayout({children}: {children: ReactNode}) {
               className={`px-3 py-1 rounded-lg ${pathname === '/market' ? 'bg-primary text-primary-content' : 'hover:bg-base-100'}`}
             >
               Market
+            </Link>
+            <Link
+              href="/affiliate"
+              className={`px-3 py-1 rounded-lg flex items-center gap-2 ${
+                pathname === '/affiliate' ? 'bg-primary text-primary-content' : 'hover:bg-base-100'
+              }`}
+            >
+              <IconUsers size={16} />
+              Affiliate {affiliate?.shares && Object.keys(affiliate.shares).length > 0 && (
+                <span className="badge badge-sm badge-secondary">
+                  {Object.values(affiliate.shares).reduce((a, b) => a + b, 0)}
+                </span>
+              )}
             </Link>
             <Link
               href="/info"
