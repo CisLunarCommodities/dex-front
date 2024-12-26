@@ -1,87 +1,114 @@
 'use client'
 
 import Link from 'next/link'
-import {usePathname} from 'next/navigation'
-import * as React from 'react'
-import {ReactNode} from 'react'
-import toast, {Toaster} from 'react-hot-toast'
+import { usePathname } from 'next/navigation'
+import { ReactNode, useState, useRef, useEffect } from 'react'
+import toast, { Toaster } from 'react-hot-toast'
 import { useAffiliate } from '@/lib/affiliate'
-import { IconUsers, IconRocket } from '@tabler/icons-react'
+import { IconUsers, IconRocket, IconMenu2, IconX } from '@tabler/icons-react'
+import { WalletButton } from '../solana/solana-provider'
+import { ClusterUiSelect } from '../cluster/cluster-ui'
 
-import {AccountChecker} from '../account/account-ui'
-import {ClusterChecker, ClusterUiSelect, ExplorerLink} from '../cluster/cluster-ui'
-import {WalletButton} from '../solana/solana-provider'
-
-export function UiLayout({children}: {children: ReactNode}) {
+export function UiLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const { affiliate } = useAffiliate()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  const navLinks = [
+    { href: '/', label: 'Swap', emoji: '🔄' },
+    { href: '/market', label: 'Market', emoji: '📊' },
+    { 
+      href: '/deals', 
+      label: 'Deals',
+      emoji: '🚀',
+      icon: <IconRocket size={16} />
+    },
+    { 
+      href: '/affiliate', 
+      label: 'Affiliate',
+      emoji: '👥',
+      icon: <IconUsers size={16} />,
+      badge: affiliate?.shares && Object.keys(affiliate.shares).length > 0 
+        ? Object.values(affiliate.shares).reduce((a, b) => a + b, 0)
+        : null
+    },
+    { href: '/info', label: 'Info', emoji: 'ℹ️' },
+    { href: '/about', label: 'About', emoji: '💫' }
+  ]
 
   return (
     <div className="h-full flex flex-col">
       <div className="navbar bg-base-300 text-neutral-content">
         <div className="flex-1 items-center">
           <Link className="text-xl font-semibold" href="/">
-            Cislunar Exchange
+            🌌 Cislunar Exchange
           </Link>
-          <div className="ml-8 flex items-center space-x-2">
-            <Link
-              href="/"
-              className={`px-3 py-1 rounded-lg ${pathname === '/' ? 'bg-primary text-primary-content' : 'hover:bg-base-100'}`}
-            >
-              Swap
-            </Link>
-            <Link
-              href="/market"
-              className={`px-3 py-1 rounded-lg ${pathname === '/market' ? 'bg-primary text-primary-content' : 'hover:bg-base-100'}`}
-            >
-              Market
-            </Link>
-            <Link
-              href="/deals"
-              className={`px-3 py-1 rounded-lg flex items-center gap-2 ${
-                pathname === '/deals' ? 'bg-primary text-primary-content' : 'hover:bg-base-100'
-              }`}
-            >
-              <IconRocket size={16} />
-              Deals
-            </Link>
-            <Link
-              href="/affiliate"
-              className={`px-3 py-1 rounded-lg flex items-center gap-2 ${
-                pathname === '/affiliate' ? 'bg-primary text-primary-content' : 'hover:bg-base-100'
-              }`}
-            >
-              <IconUsers size={16} />
-              Affiliate {affiliate?.shares && Object.keys(affiliate.shares).length > 0 && (
-                <span className="badge badge-sm badge-secondary">
-                  {Object.values(affiliate.shares).reduce((a, b) => a + b, 0)}
-                </span>
-              )}
-            </Link>
-            <Link
-              href="/info"
-              className={`px-3 py-1 rounded-lg ${pathname === '/info' ? 'bg-primary text-primary-content' : 'hover:bg-base-100'}`}
-            >
-              Info
-            </Link>
-            <Link
-              href="/about"
-              className={`px-3 py-1 rounded-lg ${pathname === '/about' ? 'bg-primary text-primary-content' : 'hover:bg-base-100'}`}
-            >
-              About
-            </Link>
+          
+          {/* Desktop Navigation */}
+          <div className="ml-8 hidden md:flex items-center space-x-2">
+            {navLinks.map(link => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`px-3 py-1 rounded-lg flex items-center gap-2 ${
+                  pathname === link.href ? 'bg-primary text-primary-content' : 'hover:bg-base-100'
+                }`}
+              >
+                <span className="text-lg">{link.emoji}</span>
+                {link.label}
+                {link.badge && (
+                  <span className="badge badge-sm badge-secondary">{link.badge}</span>
+                )}
+              </Link>
+            ))}
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <ClusterUiSelect />
-          <WalletButton />
+
+          {/* Desktop Wallet */}
+          <div className="hidden md:flex items-center ml-auto gap-2">
+            <ClusterUiSelect />
+            <WalletButton />
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button 
+            className="ml-auto md:hidden btn btn-ghost btn-circle"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <IconX size={24} /> : <IconMenu2 size={24} />}
+          </button>
         </div>
       </div>
 
-      <ClusterChecker>
-        <AccountChecker />
-        <main className="flex-1">{children}</main>
-      </ClusterChecker>
+      {/* Mobile Menu */}
+      <div className={`md:hidden ${isMenuOpen ? 'block' : 'hidden'}`}>
+        <div className="bg-base-200 p-4">
+          {navLinks.map(link => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg mb-2 ${
+                pathname === link.href ? 'bg-primary text-primary-content' : 'hover:bg-base-100'
+              }`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <span className="text-lg">{link.emoji}</span>
+              {link.label}
+              {link.badge && (
+                <span className="badge badge-sm badge-secondary ml-auto">{link.badge}</span>
+              )}
+            </Link>
+          ))}
+          
+          <div className="border-t border-base-300 my-4" />
+          
+          <div className="space-y-4 px-4">
+            <ClusterUiSelect />
+            <WalletButton />
+          </div>
+        </div>
+      </div>
+
+      {children}
       <Toaster position="bottom-right" />
     </div>
   )
@@ -104,16 +131,16 @@ export function AppModal({
   submitDisabled?: boolean
   submitLabel?: string
 }) {
-  const dialogRef = React.useRef<HTMLDialogElement>(null)
+  const dialogRef = useRef<HTMLDialogElement>(null)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!dialogRef.current) return
     if (show) {
       dialogRef.current.showModal()
     } else {
       dialogRef.current.close()
     }
-  }, [show, dialogRef])
+  }, [show])
 
   return (
     <dialog className="modal" ref={dialogRef}>
@@ -121,7 +148,7 @@ export function AppModal({
         <h3 className="font-bold text-lg">{title}</h3>
         {children}
         <div className="modal-action">
-          <div className="flex gap-2">
+          <div className="space-x-2">
             <button className="btn btn-ghost" onClick={hide}>
               Close
             </button>
@@ -169,8 +196,11 @@ export function useTransactionToast() {
     toast.success(
       <div className={'text-center'}>
         <div className="text-lg">Transaction sent</div>
-        <ExplorerLink path={`tx/${signature}`} label={'View Transaction'} className="btn btn-xs btn-primary" />
+        <Link href={`https://explorer.solana.com/tx/${signature}`} target="_blank" className="btn btn-xs btn-primary">
+          View Transaction
+        </Link>
       </div>,
     )
   }
 }
+
