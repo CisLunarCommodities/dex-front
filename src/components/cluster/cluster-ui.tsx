@@ -30,11 +30,18 @@ export function ClusterChecker({ children }: { children: ReactNode }) {
     queryKey: ['version', { cluster, endpoint: connection.rpcEndpoint }],
     queryFn: () => connection.getVersion(),
     retry: 1,
+    retryDelay: 500,
+    // Don't show error for mainnet
+    enabled: !cluster.network?.includes('mainnet'),
   })
+
   if (query.isLoading) {
     return null
   }
   if (query.isError || !query.data) {
+    if (cluster.network?.includes('mainnet')) {
+      return children
+    }
     return (
       <div className="alert alert-warning text-warning-content/80 rounded-none flex justify-center">
         <span>

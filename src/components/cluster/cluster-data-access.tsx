@@ -20,25 +20,42 @@ export enum ClusterNetwork {
   Custom = 'custom',
 }
 
-// By default, we don't configure the mainnet-beta cluster
-// The endpoint provided by clusterApiUrl('mainnet-beta') does not allow access from the browser due to CORS restrictions
-// To use the mainnet-beta cluster, provide a custom endpoint
+// Adding RPC endpoints that support mainnet
 export const defaultClusters: Cluster[] = [
+  {
+    name: 'mainnet-beta',
+    endpoint: 'https://api.mainnet-beta.solana.com',
+    network: ClusterNetwork.Mainnet,
+  },
+  {
+    name: 'mainnet-beta (Helius)',
+    endpoint: 'https://rpc.helius.xyz/?api-key=YOUR_API_KEY',
+    network: ClusterNetwork.Mainnet,
+  },
+  {
+    name: 'mainnet-beta (QuickNode)',
+    endpoint: 'https://YOUR_QUICKNODE_URL.solana-mainnet.quiknode.pro/',
+    network: ClusterNetwork.Mainnet,
+  },
   {
     name: 'devnet',
     endpoint: clusterApiUrl('devnet'),
     network: ClusterNetwork.Devnet,
   },
-  { name: 'local', endpoint: 'http://localhost:8899' },
   {
     name: 'testnet',
     endpoint: clusterApiUrl('testnet'),
     network: ClusterNetwork.Testnet,
   },
+  { 
+    name: 'local', 
+    endpoint: 'http://localhost:8899',
+    network: ClusterNetwork.Custom
+  },
 ]
 
 const clusterAtom = atomWithStorage<Cluster>('solana-cluster', defaultClusters[0])
-const clustersAtom = atomWithStorage<Cluster[]>('solana-clusters', defaultClusters)
+const clustersAtom = atomWithStorage<Cluster[]>('solana-cluster-list', defaultClusters)
 
 const activeClustersAtom = atom<Cluster[]>((get) => {
   const clusters = get(clustersAtom)

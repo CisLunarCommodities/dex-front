@@ -5,15 +5,26 @@
 html,
 body {
     height: 100%;
+    background-color: #000000;
+    color: #ffffff;
 }
 
-.wallet-adapter-button-trigger {
-    background: rgb(100, 26, 230) !important;
-    border-radius: 8px !important;
-    padding-left: 16px !important;
-    padding-right: 16px !important;
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
-.wallet-adapter-dropdown-list,
-.wallet-adapter-button {
-    font-family: inherit !important;
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.btn-primary {
+    background: rgb(188, 55, 255) !important;
+    border: none !important;
+}
+
+.btn-secondary {
+    background: rgb(255, 105, 255) !important;
+    border: none !important;
 }
