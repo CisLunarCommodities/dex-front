@@ -1,22 +1,37 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { WalletButton } from '../solana/solana-provider'
 import { TokenInput } from '../ui/ui-input'
 import { TokenSelect } from '../ui/ui-token-select'
+import { fetchAsterankData } from '@/lib/asterank'
 
-// Define space commodities and tokens
+// Update space tokens with market data
 const spaceTokens = [
-  { symbol: 'LOX', name: 'Liquid Oxygen', icon: '🌬️' },
-  { symbol: 'H3', name: 'Helium-3', icon: '⚛️' },
-  { symbol: 'H2O', name: 'Water', icon: '💧' },
-  { symbol: 'IRON', name: 'Space Iron', icon: '⛏️' },
-  { symbol: 'TITAN', name: 'Titanium', icon: '🛠️' },
-  { symbol: 'RGTH', name: 'Regolith', icon: '🌑' },
-  { symbol: 'DMND', name: 'Space Diamonds', icon: '💎' },
+  { symbol: 'LOX', name: 'Liquid Oxygen', icon: '🌬️', price: 0, supply: 0 },
+  { symbol: 'H3', name: 'Helium-3', icon: '⚛️', price: 0, supply: 0 },
+  { symbol: 'H2O', name: 'Water', icon: '💧', price: 0, supply: 0 },
+  { symbol: 'IRON', name: 'Space Iron', icon: '⛏️', price: 0, supply: 0 },
 ]
 
 export default function DashboardFeature() {
+  const [marketData, setMarketData] = useState(spaceTokens)
+  
+  useEffect(() => {
+    async function updateMarketData() {
+      const asterankData = await fetchAsterankData()
+      setMarketData(spaceTokens.map(token => {
+        const marketInfo = asterankData.find(item => item.symbol === token.symbol)
+        return {
+          ...token,
+          price: marketInfo?.price || 0,
+          supply: marketInfo?.supply || 0
+        }
+      }))
+    }
+    updateMarketData()
+  }, [])
+
   const [sellAmount, setSellAmount] = useState('')
   const [buyAmount, setBuyAmount] = useState('')
   const [showSellTokens, setShowSellTokens] = useState(false)
@@ -70,7 +85,9 @@ export default function DashboardFeature() {
           onSelect={(token) => setSelectedSellToken({
             symbol: token.symbol,
             name: token.name,
-            icon: String(token.icon)
+            icon: String(token.icon),
+            price: token.price,
+            supply: token.supply
           })}
           title="Select Sell Token"
         />
@@ -82,7 +99,9 @@ export default function DashboardFeature() {
           onSelect={(token) => setSelectedBuyToken({
             symbol: token.symbol,
             name: token.name,
-            icon: String(token.icon)
+            icon: String(token.icon),
+            price: token.price,
+            supply: token.supply
           })}
           title="Select Buy Token"
         />

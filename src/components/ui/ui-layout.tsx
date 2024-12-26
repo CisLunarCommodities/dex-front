@@ -28,6 +28,12 @@ export function UiLayout({children}: {children: ReactNode}) {
               Swap
             </Link>
             <Link
+              href="/market"
+              className={`px-3 py-1 rounded-lg ${pathname === '/market' ? 'bg-primary text-primary-content' : 'hover:bg-base-100'}`}
+            >
+              Market
+            </Link>
+            <Link
               href="/info"
               className={`px-3 py-1 rounded-lg ${pathname === '/info' ? 'bg-primary text-primary-content' : 'hover:bg-base-100'}`}
             >
