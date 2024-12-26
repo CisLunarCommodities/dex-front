@@ -39,6 +39,10 @@ export function AccountBalanceCheck({ address }: { address: PublicKey }) {
   const mutation = useRequestAirdrop({ address })
   const query = useGetBalance({ address })
 
+  if (cluster.network?.includes('mainnet')) {
+    return null
+  }
+
   if (query.isLoading) {
     return null
   }

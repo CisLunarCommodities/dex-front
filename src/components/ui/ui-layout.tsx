@@ -18,53 +18,39 @@ export function UiLayout({ children, links }: { children: ReactNode; links: { la
       <div className="navbar bg-base-300 text-neutral-content flex-col md:flex-row space-y-2 md:space-y-0">
         <div className="flex-1">
           <Link className="btn btn-ghost normal-case text-xl" href="/">
-            <img className="h-4 md:h-6" alt="Logo" src="/logo.png" />
+            Cislunar Exchange
           </Link>
-          <ul className="menu menu-horizontal px-1 space-x-2">
-            {links.map(({ label, path }) => (
-              <li key={path}>
-                <Link className={pathname.startsWith(path) ? 'active' : ''} href={path}>
-                  {label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <div className="hidden md:flex md:flex-1 md:gap-2">
+            <Link
+              className={`btn btn-sm ${pathname === '/' ? 'btn-primary' : 'btn-ghost'}`}
+              href="/"
+            >
+              Swap
+            </Link>
+            <Link
+              className={`btn btn-sm ${pathname === '/info' ? 'btn-primary' : 'btn-ghost'}`}
+              href="/info"
+            >
+              Info
+            </Link>
+            <Link
+              className={`btn btn-sm ${pathname === '/about' ? 'btn-primary' : 'btn-ghost'}`}
+              href="/about"
+            >
+              About
+            </Link>
+          </div>
         </div>
-        <div className="flex-none space-x-2">
-          <WalletButton />
+        <div className="flex gap-2">
           <ClusterUiSelect />
+          <WalletButton />
         </div>
       </div>
       <ClusterChecker>
         <AccountChecker />
+        <main className="flex-1">{children}</main>
       </ClusterChecker>
-      <div className="flex-grow mx-4 lg:mx-auto">
-        <Suspense
-          fallback={
-            <div className="text-center my-32">
-              <span className="loading loading-spinner loading-lg"></span>
-            </div>
-          }
-        >
-          {children}
-        </Suspense>
-        <Toaster position="bottom-right" />
-      </div>
-      <footer className="footer footer-center p-4 bg-base-300 text-base-content">
-        <aside>
-          <p>
-            Provided by the{' '}
-            <a
-              className="link hover:text-white"
-              href="https://ipmf.ai"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              InterPlanetary Monetary Fund
-            </a>
-          </p>
-        </aside>
-      </footer>
+      <Toaster position="bottom-right" />
     </div>
   )
 }
