@@ -3,49 +3,50 @@
 import Link from 'next/link'
 import {usePathname} from 'next/navigation'
 import * as React from 'react'
-import {ReactNode, Suspense, useEffect, useRef} from 'react'
+import {ReactNode} from 'react'
 import toast, {Toaster} from 'react-hot-toast'
 
 import {AccountChecker} from '../account/account-ui'
-import {ClusterChecker, ClusterUiSelect, ExplorerLink} from '../cluster/cluster-ui'
+import {ClusterChecker, ClusterUiSelect} from '../cluster/cluster-ui'
 import {WalletButton} from '../solana/solana-provider'
 
-export function UiLayout({ children, links }: { children: ReactNode; links: { label: string; path: string }[] }) {
+export function UiLayout({children}: {children: ReactNode}) {
   const pathname = usePathname()
 
   return (
     <div className="h-full flex flex-col">
-      <div className="navbar bg-base-300 text-neutral-content flex-col md:flex-row space-y-2 md:space-y-0">
-        <div className="flex-1">
-          <Link className="btn btn-ghost normal-case text-xl" href="/">
+      <div className="navbar bg-base-300 text-neutral-content">
+        <div className="flex-1 items-center">
+          <Link className="text-xl font-semibold" href="/">
             Cislunar Exchange
           </Link>
-          <div className="hidden md:flex md:flex-1 md:gap-2">
+          <div className="ml-8 flex items-center space-x-2">
             <Link
-              className={`btn btn-sm ${pathname === '/' ? 'btn-primary' : 'btn-ghost'}`}
               href="/"
+              className={`px-3 py-1 rounded-lg ${pathname === '/' ? 'bg-primary text-primary-content' : 'hover:bg-base-100'}`}
             >
               Swap
             </Link>
             <Link
-              className={`btn btn-sm ${pathname === '/info' ? 'btn-primary' : 'btn-ghost'}`}
               href="/info"
+              className={`px-3 py-1 rounded-lg ${pathname === '/info' ? 'bg-primary text-primary-content' : 'hover:bg-base-100'}`}
             >
               Info
             </Link>
             <Link
-              className={`btn btn-sm ${pathname === '/about' ? 'btn-primary' : 'btn-ghost'}`}
               href="/about"
+              className={`px-3 py-1 rounded-lg ${pathname === '/about' ? 'bg-primary text-primary-content' : 'hover:bg-base-100'}`}
             >
               About
             </Link>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <ClusterUiSelect />
           <WalletButton />
         </div>
       </div>
+
       <ClusterChecker>
         <AccountChecker />
         <main className="flex-1">{children}</main>
