@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { WalletButton } from '../solana/solana-provider'
 import { TokenInput } from '../ui/ui-input'
+import { TokenSelect } from '../ui/ui-token-select'
 
 // Define space commodities and tokens
 const spaceTokens = [
@@ -20,8 +21,8 @@ export default function DashboardFeature() {
   const [buyAmount, setBuyAmount] = useState('')
   const [showSellTokens, setShowSellTokens] = useState(false)
   const [showBuyTokens, setShowBuyTokens] = useState(false)
-  const [selectedSellToken, setSelectedSellToken] = useState({ symbol: 'LOX', icon: '🚀' })
-  const [selectedBuyToken, setSelectedBuyToken] = useState({ symbol: 'H3', icon: '⚛️' })
+  const [selectedSellToken, setSelectedSellToken] = useState(spaceTokens[0])
+  const [selectedBuyToken, setSelectedBuyToken] = useState(spaceTokens[1])
 
   return (
     <div className="max-w-lg mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -61,6 +62,30 @@ export default function DashboardFeature() {
         <div className="bg-primary/10 text-primary px-4 py-2 rounded-lg flex items-center justify-center">
           <span className="font-mono">8oZ7..YTBR</span>
         </div>
+
+        <TokenSelect
+          show={showSellTokens}
+          hide={() => setShowSellTokens(false)}
+          tokens={spaceTokens}
+          onSelect={(token) => setSelectedSellToken({
+            symbol: token.symbol,
+            name: token.name,
+            icon: String(token.icon)
+          })}
+          title="Select Sell Token"
+        />
+
+        <TokenSelect
+          show={showBuyTokens}
+          hide={() => setShowBuyTokens(false)}
+          tokens={spaceTokens}
+          onSelect={(token) => setSelectedBuyToken({
+            symbol: token.symbol,
+            name: token.name,
+            icon: String(token.icon)
+          })}
+          title="Select Buy Token"
+        />
 
         {/* Banner */}
         <div className="bg-base-300 p-4 rounded-lg flex items-center justify-between">
