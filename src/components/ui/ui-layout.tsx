@@ -6,7 +6,7 @@ import * as React from 'react'
 import {ReactNode} from 'react'
 import toast, {Toaster} from 'react-hot-toast'
 import { useAffiliate } from '@/lib/affiliate'
-import { IconUsers } from '@tabler/icons-react'
+import { IconUsers, IconRocket } from '@tabler/icons-react'
 
 import {AccountChecker} from '../account/account-ui'
 import {ClusterChecker, ClusterUiSelect, ExplorerLink} from '../cluster/cluster-ui'
@@ -35,6 +35,15 @@ export function UiLayout({children}: {children: ReactNode}) {
               className={`px-3 py-1 rounded-lg ${pathname === '/market' ? 'bg-primary text-primary-content' : 'hover:bg-base-100'}`}
             >
               Market
+            </Link>
+            <Link
+              href="/deals"
+              className={`px-3 py-1 rounded-lg flex items-center gap-2 ${
+                pathname === '/deals' ? 'bg-primary text-primary-content' : 'hover:bg-base-100'
+              }`}
+            >
+              <IconRocket size={16} />
+              Deals
             </Link>
             <Link
               href="/affiliate"
