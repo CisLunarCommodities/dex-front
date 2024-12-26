@@ -61,34 +61,26 @@ function calculateComposition(spec: string): SpaceResource['composition'] {
 
 export async function fetchAsterankData(): Promise<SpaceResource[]> {
   try {
-    // Query for near-Earth asteroids with mining potential
-    const query = {
-      "neo": "Y",
-      "price": { "$gt": 1e6 },
-      "dv": { "$lt": 10 }
-    }
+    const response = await fetch('/api/space-data')
+    const data = await response.json()
     
-    const response = await fetch(`/api/asterank?query=${JSON.stringify(query)}&limit=20`)
-    const data: AsterankResponse[] = await response.json()
-    
-    return data.map(asteroid => {
-      const { symbol, name } = getResourceType(asteroid.spec, asteroid.class)
-      const miningDifficulty = (asteroid.dv / 10) * 100 // Scale 0-10 delta-v to 0-100%
-      
-      return {
-        symbol,
-        name,
-        price: asteroid.price / 1e6, // Convert to millions
-        supply: parseFloat(asteroid.GM || '0') * 1000, // Rough estimate from mass
-        source: asteroid.full_name,
-        miningDifficulty,
-        deltaV: asteroid.dv,
-        resourceClass: asteroid.class,
-        composition: calculateComposition(asteroid.spec)
-      }
-    }).filter(resource => resource.price > 0 && resource.deltaV < 10)
+    return data.map((asteroid: any) => ({
+      symbol: asteroid.type,
+      name: getResourceType(asteroid.type, asteroid.specs.orbitClass),
+      price: asteroid.mining.estimatedValue / 1e6,
+      supply: calculateSupply(asteroid.specs.diameter, asteroid.mining.composition),
+      source: asteroid.name,
+      miningDifficulty: 100 - asteroid.mining.accessibility,
+      deltaV: asteroid.mining.deltaV,
+      resourceClass: asteroid.specs.orbitClass,
+      composition: asteroid.mining.composition
+    }))
   } catch (error) {
-    console.error('Error fetching Asterank data:', error)
+    console.error('Error fetching space data:', error)
     return []
   }
 } 
+
+function calculateSupply(diameter: any, composition: any) {
+    throw new Error("Function not implemented.")
+}
