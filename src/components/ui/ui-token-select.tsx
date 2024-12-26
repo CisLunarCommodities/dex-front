@@ -7,6 +7,8 @@ interface Token {
   symbol: string
   name: string
   icon: ReactNode
+  price: number
+  supply: number
 }
 
 interface TokenSelectProps {
@@ -34,6 +36,10 @@ export function TokenSelect({ show, hide, tokens, onSelect, title = 'Select Toke
             <div className="flex flex-col items-start">
               <span className="font-semibold">{token.symbol}</span>
               <span className="text-sm text-gray-400">{token.name}</span>
+            </div>
+            <div className="ml-auto text-right">
+              <div>${token.price.toFixed(2)}</div>
+              <div className="text-sm text-gray-400">Supply: {token.supply}</div>
             </div>
           </button>
         ))}
