@@ -7,7 +7,7 @@ import {ReactNode} from 'react'
 import toast, {Toaster} from 'react-hot-toast'
 
 import {AccountChecker} from '../account/account-ui'
-import {ClusterChecker, ClusterUiSelect} from '../cluster/cluster-ui'
+import {ClusterChecker, ClusterUiSelect, ExplorerLink} from '../cluster/cluster-ui'
 import {WalletButton} from '../solana/solana-provider'
 
 export function UiLayout({children}: {children: ReactNode}) {
@@ -73,9 +73,9 @@ export function AppModal({
   submitDisabled?: boolean
   submitLabel?: string
 }) {
-  const dialogRef = useRef<HTMLDialogElement | null>(null)
+  const dialogRef = React.useRef<HTMLDialogElement>(null)
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!dialogRef.current) return
     if (show) {
       dialogRef.current.showModal()
@@ -90,15 +90,15 @@ export function AppModal({
         <h3 className="font-bold text-lg">{title}</h3>
         {children}
         <div className="modal-action">
-          <div className="join space-x-2">
+          <div className="flex gap-2">
+            <button className="btn btn-ghost" onClick={hide}>
+              Close
+            </button>
             {submit ? (
-              <button className="btn btn-xs lg:btn-md btn-primary" onClick={submit} disabled={submitDisabled}>
+              <button className="btn btn-primary" onClick={submit} disabled={submitDisabled}>
                 {submitLabel || 'Save'}
               </button>
             ) : null}
-            <button onClick={hide} className="btn">
-              Close
-            </button>
           </div>
         </div>
       </div>
@@ -107,20 +107,20 @@ export function AppModal({
 }
 
 export function AppHero({
-  children,
   title,
   subtitle,
+  children,
 }: {
-  children?: ReactNode
   title: ReactNode
-  subtitle: ReactNode
+  subtitle?: ReactNode
+  children?: ReactNode
 }) {
   return (
     <div className="hero py-[64px]">
       <div className="hero-content text-center">
         <div className="max-w-2xl">
-          {typeof title === 'string' ? <h1 className="text-5xl font-bold">{title}</h1> : title}
-          {typeof subtitle === 'string' ? <p className="py-6">{subtitle}</p> : subtitle}
+          {title}
+          {subtitle}
           {children}
         </div>
       </div>
@@ -128,11 +128,9 @@ export function AppHero({
   )
 }
 
-export function ellipsify(str = '', len = 4) {
-  if (str.length > 30) {
-    return str.substring(0, len) + '..' + str.substring(str.length - len, str.length)
-  }
-  return str
+export function ellipsify(str: string, start = 4, end = 4) {
+  if (str.length <= start + end) return str
+  return `${str.slice(0, start)}...${str.slice(-end)}`
 }
 
 export function useTransactionToast() {
