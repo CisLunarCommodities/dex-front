@@ -1,4 +1,6 @@
 const NASA_API_KEY = process.env.NEXT_PUBLIC_NASA_API_KEY || 'DEMO_KEY'
+let lastApiCall = 0
+const API_COOLDOWN = 1000 // 1 second between calls
 
 interface NeoAsteroid {
   id: string
@@ -61,6 +63,13 @@ export interface SpaceDeal {
 
 export async function fetchNeoAsteroids(): Promise<NeoAsteroid[]> {
   try {
+    // Check if we need to wait before making another API call
+    const now = Date.now()
+    if (now - lastApiCall < API_COOLDOWN) {
+      return generateMockAsteroids()
+    }
+    lastApiCall = now
+
     const startDate = new Date().toISOString().split('T')[0]
     const endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
     
@@ -68,8 +77,18 @@ export async function fetchNeoAsteroids(): Promise<NeoAsteroid[]> {
       `https://api.nasa.gov/neo/rest/v1/feed?` +
       `start_date=${startDate}&` +
       `end_date=${endDate}&` +
-      `api_key=${NASA_API_KEY}`
+      `api_key=${NASA_API_KEY}`,
+      {
+        headers: {
+          'Accept': 'application/json',
+        }
+      }
     )
+
+    if (response.status === 429) {
+      console.warn('NASA API rate limit reached, using mock data')
+      return generateMockAsteroids()
+    }
 
     if (!response.ok) {
       throw new Error(`NASA API responded with status: ${response.status}`)
@@ -85,7 +104,6 @@ export async function fetchNeoAsteroids(): Promise<NeoAsteroid[]> {
     return asteroids as NeoAsteroid[]
   } catch (error) {
     console.error('Error fetching NEO data:', error)
-    // Return some mock data as fallback
     return generateMockAsteroids()
   }
 }
