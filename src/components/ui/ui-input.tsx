@@ -10,6 +10,7 @@ interface TokenInputProps {
   tokenIcon: ReactNode
   onTokenSelect: () => void
   showUsdAmount?: boolean
+  balance?: number
 }
 
 export function TokenInput({
@@ -20,10 +21,18 @@ export function TokenInput({
   tokenIcon,
   onTokenSelect,
   showUsdAmount = true,
+  balance = 0,
 }: TokenInputProps) {
   return (
     <div className="bg-base-300 p-4 rounded-lg">
-      <div className="text-sm text-gray-400 mb-2">{label}</div>
+      <div className="flex justify-between items-center mb-2">
+        <div className="text-sm text-gray-400">{label}</div>
+        {balance !== undefined && (
+          <div className="text-sm text-gray-400">
+            Balance: {balance.toLocaleString()} {tokenSymbol}
+          </div>
+        )}
+      </div>
       <div className="flex justify-between items-center">
         <input
           type="number"

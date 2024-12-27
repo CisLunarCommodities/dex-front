@@ -1,95 +1,111 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { WalletButton } from '../solana/solana-provider'
+import { AwaitedReactNode, JSXElementConstructor, Key, ReactElement, ReactNode, useState } from 'react'
+import { useAllTokenBalances, SPACE_TOKENS } from '@/lib/token-data-access'
 import { TokenInput } from '../ui/ui-input'
 import { TokenSelect } from '../ui/ui-token-select'
-import { fetchAsterankData } from '@/lib/asterank'
+import { SwapButton } from '../ui/ui-swap-button'
+import { useWallet } from '@solana/wallet-adapter-react'
 
-// Update space tokens with market data
+// Define space tokens in the dashboard
 const spaceTokens = [
-  { symbol: 'LOX', name: 'Liquid Oxygen', icon: '🌬️', price: 0, supply: 0 },
-  { symbol: 'H3', name: 'Helium-3', icon: '⚛️', price: 0, supply: 0 },
-  { symbol: 'H2O', name: 'Water', icon: '💧', price: 0, supply: 0 },
-  { symbol: 'IRON', name: 'Space Iron', icon: '⛏️', price: 0, supply: 0 },
+  {
+    symbol: 'LOX',
+    name: 'Liquid Oxygen',
+    icon: '🌬️',
+    price: 0,
+    supply: 0,
+    address: SPACE_TOKENS.LOX.toString()
+  },
+  {
+    symbol: 'H3',
+    name: 'Helium-3',
+    icon: '⚛️',
+    price: 0,
+    supply: 0,
+    address: SPACE_TOKENS.H3.toString()
+  },
 ]
 
 export default function DashboardFeature() {
-  const [marketData, setMarketData] = useState(spaceTokens)
+  const { connected } = useWallet()
+  const { data: tokenBalances, isLoading: isLoadingBalances, error } = useAllTokenBalances()
   
-  useEffect(() => {
-    async function updateMarketData() {
-      const asterankData = await fetchAsterankData()
-      setMarketData(spaceTokens.map(token => {
-        const marketInfo = asterankData.find(item => item.symbol === token.symbol)
-        return {
-          ...token,
-          price: marketInfo?.price || 0,
-          supply: marketInfo?.supply || 0
-        }
-      }))
-    }
-    updateMarketData()
-  }, [])
-
-  const [sellAmount, setSellAmount] = useState('')
-  const [buyAmount, setBuyAmount] = useState('')
-  const [showSellTokens, setShowSellTokens] = useState(false)
   const [showBuyTokens, setShowBuyTokens] = useState(false)
-  const [selectedSellToken, setSelectedSellToken] = useState(spaceTokens[0])
-  const [selectedBuyToken, setSelectedBuyToken] = useState(spaceTokens[1])
+  const [showSellTokens, setShowSellTokens] = useState(false)
+  
+  const [selectedBuyToken, setSelectedBuyToken] = useState(spaceTokens[0])
+  const [selectedSellToken, setSelectedSellToken] = useState(spaceTokens[1])
+  
+  const [buyAmount, setBuyAmount] = useState('')
+  const [sellAmount, setSellAmount] = useState('')
+
+  // Debug logging
+  console.log('Token balances:', tokenBalances)
+  console.log('Loading:', isLoadingBalances)
+  console.log('Error:', error)
 
   return (
-    <div className="max-w-lg mx-auto py-6 px-4 sm:px-6 lg:px-8">
-      <div className="bg-base-200 rounded-lg p-6 space-y-6">
-        {/* Navigation */}
-        <div className="flex space-x-4 justify-center">
-          <button className="text-white px-4 py-2 rounded-lg bg-base-100">Swap</button>
-          <button className="text-gray-400 px-4 py-2 rounded-lg hover:bg-base-100">Limit</button>
-          <button className="text-gray-400 px-4 py-2 rounded-lg hover:bg-base-100">Send</button>
-          <button className="text-gray-400 px-4 py-2 rounded-lg hover:bg-base-100">Buy</button>
+    <div className="container mx-auto px-4 py-8 max-w-xl">
+      {/* Token Balances */}
+      {connected && (
+        <div className="mb-8 p-4 bg-base-200 rounded-lg">
+          <h2 className="text-lg font-semibold mb-4">Your Balances</h2>
+          <div className="space-y-2">
+            {isLoadingBalances ? (
+              <div className="flex justify-center">
+                <div className="loading loading-spinner loading-md" />
+              </div>
+            ) : error ? (
+              <div className="text-error">Error loading balances</div>
+            ) : tokenBalances && tokenBalances.length > 0 ? (
+              tokenBalances.map((token) => (
+                <div key={token.mint} className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">
+                      {token.symbol === 'LOX' ? '🌬️' : '⚛️'}
+                    </span>
+                    <span>{token.symbol}</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-mono">
+                      {token.balance.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 6
+                      })}
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center text-gray-500">
+                No tokens found
+              </div>
+            )}
+          </div>
         </div>
+      )}
 
+      {/* Rest of your swap interface */}
+      <div className="space-y-4">
         <TokenInput
-          label="Sell"
+          label="You Pay"
           amount={sellAmount}
           setAmount={setSellAmount}
           tokenSymbol={selectedSellToken.symbol}
           tokenIcon={selectedSellToken.icon}
           onTokenSelect={() => setShowSellTokens(true)}
+          balance={tokenBalances?.find((t: { mint: string }) => t.mint === selectedSellToken.address)?.balance}
         />
 
-        {/* Swap Icon */}
-        <div className="flex justify-center">
-          <button className="text-gray-400">↓</button>
-        </div>
-
         <TokenInput
-          label="Buy"
+          label="You Receive"
           amount={buyAmount}
           setAmount={setBuyAmount}
           tokenSymbol={selectedBuyToken.symbol}
           tokenIcon={selectedBuyToken.icon}
           onTokenSelect={() => setShowBuyTokens(true)}
-        />
-
-        {/* Wallet Address */}
-        <div className="bg-primary/10 text-primary px-4 py-2 rounded-lg flex items-center justify-center">
-          <span className="font-mono">8oZ7..YTBR</span>
-        </div>
-
-        <TokenSelect
-          show={showSellTokens}
-          hide={() => setShowSellTokens(false)}
-          tokens={spaceTokens}
-          onSelect={(token) => setSelectedSellToken({
-            symbol: token.symbol,
-            name: token.name,
-            icon: String(token.icon),
-            price: token.price,
-            supply: token.supply
-          })}
-          title="Select Sell Token"
+          balance={tokenBalances?.find((t: { mint: string }) => t.mint === selectedBuyToken.address)?.balance}
         />
 
         <TokenSelect
@@ -97,29 +113,41 @@ export default function DashboardFeature() {
           hide={() => setShowBuyTokens(false)}
           tokens={spaceTokens}
           onSelect={(token) => setSelectedBuyToken({
-            symbol: token.symbol,
-            name: token.name,
-            icon: String(token.icon),
-            price: token.price,
-            supply: token.supply
+            ...token,
+            price: token.price || 0,
+            supply: token.supply || 0,
+            icon: token.icon as string
           })}
           title="Select Buy Token"
         />
 
-        {/* Banner */}
-        <div className="bg-base-300 p-4 rounded-lg flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="bg-primary/20 p-2 rounded-full">🚀</div>
-            <div>
-              <div className="font-semibold flex items-center space-x-2">
-                <span>Space Commodities Exchange</span>
-                <span className="bg-primary/20 text-primary text-xs px-2 py-1 rounded-full">New</span>
-              </div>
-              <div className="text-sm text-gray-400">Trade essential space resources across the solar system.</div>
-            </div>
-          </div>
-          <button className="text-gray-400">×</button>
-        </div>
+        <TokenSelect
+          show={showSellTokens}
+          hide={() => setShowSellTokens(false)}
+          tokens={spaceTokens}
+          onSelect={(token) => setSelectedSellToken({
+            ...token,
+            price: token.price || 0,
+            supply: token.supply || 0,
+            icon: token.icon as string
+          })}
+          title="Select Sell Token"
+        />
+
+        <SwapButton
+          fromToken={{
+            symbol: selectedSellToken.symbol,
+            amount: sellAmount
+          }}
+          toToken={{
+            symbol: selectedBuyToken.symbol,
+            amount: buyAmount
+          }}
+          onSwap={async () => {
+            // Implement swap logic here
+            console.log('Swapping tokens...')
+          }}
+        />
       </div>
     </div>
   )

@@ -7,8 +7,9 @@ interface Token {
   symbol: string
   name: string
   icon: ReactNode
-  price: number
-  supply: number
+  price?: number
+  supply?: number
+  address: string
 }
 
 interface TokenSelectProps {
@@ -16,30 +17,58 @@ interface TokenSelectProps {
   hide: () => void
   tokens: Token[]
   onSelect: (token: Token) => void
-  title?: string
+  title: string
 }
 
-export function TokenSelect({ show, hide, tokens, onSelect, title = 'Select Token' }: TokenSelectProps) {
+// Define our space tokens
+const spaceTokens: Token[] = [
+  {
+    symbol: 'LOX',
+    name: 'Liquid Oxygen',
+    icon: '🌬️',
+    price: 0,
+    supply: 0,
+    address: 'G9d1PgcUULzaoRKpWkJEjJEs5way8YNu8zaaVuBkn86V'
+  },
+  {
+    symbol: 'H3',
+    name: 'Helium-3',
+    icon: '⚛️',
+    price: 0,
+    supply: 0,
+    address: 'FXCSq5MRYdB8DRR7fEBKMoufgdALUP9egb9wDbUxAEnj'
+  },
+]
+
+export function TokenSelect({ show, hide, onSelect, title }: TokenSelectProps) {
   return (
     <AppModal title={title} show={show} hide={hide}>
       <div className="space-y-2">
-        {tokens.map((token) => (
+        {spaceTokens.map((token) => (
           <button
-            key={token.symbol}
-            className="w-full p-3 flex items-center space-x-3 hover:bg-base-300 rounded-lg transition-colors"
+            key={token.address}
+            className="w-full flex items-center justify-between p-4 hover:bg-base-200 rounded-lg transition-colors"
             onClick={() => {
               onSelect(token)
               hide()
             }}
           >
-            <span className="text-2xl">{token.icon}</span>
-            <div className="flex flex-col items-start">
-              <span className="font-semibold">{token.symbol}</span>
-              <span className="text-sm text-gray-400">{token.name}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">{token.icon}</span>
+              <div>
+                <div>{token.symbol}</div>
+                <span className="text-sm text-gray-400">{token.name}</span>
+              </div>
             </div>
             <div className="ml-auto text-right">
-              <div>${token.price.toFixed(2)}</div>
-              <div className="text-sm text-gray-400">Supply: {token.supply}</div>
+              {token.price !== undefined && (
+                <div>${token.price.toFixed(2)}</div>
+              )}
+              {token.supply !== undefined && (
+                <div className="text-sm text-gray-400">
+                  Supply: {token.supply.toLocaleString()}
+                </div>
+              )}
             </div>
           </button>
         ))}
