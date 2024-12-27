@@ -11,6 +11,7 @@ interface SpaceDeal {
   name: string
   type: 'MISSION' | 'COMPANY'
   description: string
+  longDescription?: string
   target?: string
   resources: string[]
   fundingGoal: number
@@ -23,6 +24,13 @@ interface SpaceDeal {
     members: number
     experience: string
   }
+  highlights: string[]
+  risks: string[]
+  timeline_details: {
+    phase: string
+    date: string
+    description: string
+  }[]
 }
 
 export default function DealsPage() {
@@ -58,7 +66,10 @@ export default function DealsPage() {
             team: {
               members: 24,
               experience: '15+ years in aerospace'
-            }
+            },
+            highlights: [],
+            risks: [],
+            timeline_details: []
           },
           // Add more deals...
         ])

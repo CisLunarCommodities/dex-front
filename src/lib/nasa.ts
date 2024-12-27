@@ -48,6 +48,8 @@ export async function fetchNeoAsteroids(): Promise<NeoAsteroid[]> {
 }
 
 export interface SpaceDeal {
+  timeline_details: any
+  highlights: any
   id: string
   name: string
   type: string
@@ -81,6 +83,16 @@ export function generateDealFromAsteroid(asteroid: NeoAsteroid): SpaceDeal {
     name: `${asteroid.name.replace('(', '').replace(')', '')} Mining Mission`,
     type: 'MISSION',
     description: `Resource extraction mission to ${avgDiameter.toFixed(2)}km diameter asteroid`,
+    timeline_details: {
+      start: getTimeline(),
+      duration: '2-3 years',
+      phases: ['Planning', 'Launch', 'Transit', 'Mining', 'Return']
+    },
+    highlights: [
+      'State-of-the-art mining equipment',
+      'Experienced space mining crew',
+      'Advanced resource processing capabilities'
+    ],
     target: asteroid.name,
     resources: determineResources(asteroid),
     fundingGoal: estimatedValue * 0.1, // 10% of estimated value

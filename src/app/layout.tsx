@@ -9,19 +9,20 @@ export const metadata = {
   description: 'Trade essential space resources across the solar system',
 }
 
-const links: {label: string; path: string}[] = [
-  {label: 'Swap', path: '/'},
-  {label: 'About', path: '/about'},
-]
-
-export default function RootLayout({children}: {children: React.ReactNode}) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" data-theme="dark">
+      <body className="min-h-screen bg-black">
         <ReactQueryProvider>
           <ClusterProvider>
             <SolanaProvider>
-              <UiLayout>{children}</UiLayout>
+              <UiLayout>
+                {children}
+              </UiLayout>
             </SolanaProvider>
           </ClusterProvider>
         </ReactQueryProvider>
