@@ -1,13 +1,25 @@
 'use client'
 
-import { AwaitedReactNode, JSXElementConstructor, Key, ReactElement, ReactNode, useState } from 'react'
+import { useState } from 'react'
 import { useAllTokenBalances, SPACE_TOKENS } from '@/lib/token-data-access'
 import { TokenInput } from '../ui/ui-input'
 import { TokenSelect } from '../ui/ui-token-select'
 import { SwapButton } from '../ui/ui-swap-button'
 import { useWallet } from '@solana/wallet-adapter-react'
 
-// Define space tokens in the dashboard
+interface TokenBalance {
+  mint: string
+  symbol: string
+  balance: number
+  price: number
+  decimals: number
+  metadata?: {
+    name: string
+    symbol: string
+    uri: string
+  }
+}
+
 const spaceTokens = [
   {
     symbol: 'LOX',
@@ -40,11 +52,6 @@ export default function DashboardFeature() {
   const [buyAmount, setBuyAmount] = useState('')
   const [sellAmount, setSellAmount] = useState('')
 
-  // Debug logging
-  console.log('Token balances:', tokenBalances)
-  console.log('Loading:', isLoadingBalances)
-  console.log('Error:', error)
-
   return (
     <div className="container mx-auto px-4 py-8 max-w-xl">
       {/* Token Balances */}
@@ -59,7 +66,7 @@ export default function DashboardFeature() {
             ) : error ? (
               <div className="text-error">Error loading balances</div>
             ) : tokenBalances && tokenBalances.length > 0 ? (
-              tokenBalances.map((token) => (
+              tokenBalances.map((token: TokenBalance) => (
                 <div key={token.mint} className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">

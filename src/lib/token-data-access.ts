@@ -5,6 +5,19 @@ import { PublicKey } from '@solana/web3.js'
 import { useQuery } from '@tanstack/react-query'
 import { getBalancesByOwner, getTokenMetadata, getTokenPrice } from './helius'
 
+interface TokenAsset {
+  id: string
+  content?: {
+    metadata?: {
+      symbol?: string
+    }
+  }
+  token_info?: {
+    balance: string
+    decimals: number
+  }
+}
+
 // Define our space tokens with their addresses
 export const SPACE_TOKENS = {
   LOX: new PublicKey('G9d1PgcUULzaoRKpWkJEjJEs5way8YNu8zaaVuBkn86V'),
@@ -25,12 +38,12 @@ export function useAllTokenBalances() {
         
         // Filter for our space tokens and map to the format we need
         const spaceTokens = assets
-          .filter(asset => 
+          .filter((asset: TokenAsset) => 
             Object.values(SPACE_TOKENS)
               .map(pk => pk.toString())
               .includes(asset.id)
           )
-          .map(asset => ({
+          .map((asset: TokenAsset) => ({
             mint: asset.id,
             symbol: asset.content?.metadata?.symbol || 'Unknown',
             balance: asset.token_info ? 
@@ -39,8 +52,6 @@ export function useAllTokenBalances() {
             decimals: asset.token_info?.decimals || 0,
             price: 0 // We'll update this with real price data when available
           }))
-
-        console.log('Filtered space tokens:', spaceTokens) // Debug log
 
         return spaceTokens
 
