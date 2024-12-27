@@ -1,6 +1,54 @@
-const NASA_API_KEY = process.env.NEXT_PUBLIC_NASA_API_KEY || 'DEMO_KEY'
-let lastApiCall = 0
-const API_COOLDOWN = 1000 // 1 second between calls
+const PRIMARY_API_KEY = process.env.NEXT_PUBLIC_NASA_API_KEY || 'DEMO_KEY'
+const SECONDARY_API_KEY = process.env.NEXT_PUBLIC_NASA_API_KEY_SECONDARY || 'DEMO_KEY'
+const HOURLY_LIMIT = 1000
+const SAFETY_THRESHOLD = 900 // Switch keys when approaching limit
+
+interface ApiKeyStatus {
+  key: string
+  calls: number
+  lastReset: number
+  cooldown: boolean
+}
+
+// Track API usage
+let primaryKeyStatus: ApiKeyStatus = {
+  key: PRIMARY_API_KEY,
+  calls: 0,
+  lastReset: Date.now(),
+  cooldown: false
+}
+
+let secondaryKeyStatus: ApiKeyStatus = {
+  key: SECONDARY_API_KEY,
+  calls: 0,
+  lastReset: Date.now(),
+  cooldown: false
+}
+
+function getActiveApiKey(): ApiKeyStatus {
+  const now = Date.now()
+  const hourInMs = 3600000
+
+  // Reset counters if an hour has passed
+  if (now - primaryKeyStatus.lastReset > hourInMs) {
+    primaryKeyStatus = { ...primaryKeyStatus, calls: 0, lastReset: now, cooldown: false }
+  }
+  if (now - secondaryKeyStatus.lastReset > hourInMs) {
+    secondaryKeyStatus = { ...secondaryKeyStatus, calls: 0, lastReset: now, cooldown: false }
+  }
+
+  // Choose the appropriate key
+  if (!primaryKeyStatus.cooldown && primaryKeyStatus.calls < SAFETY_THRESHOLD) {
+    return primaryKeyStatus
+  } else if (!secondaryKeyStatus.cooldown && secondaryKeyStatus.calls < SAFETY_THRESHOLD) {
+    return secondaryKeyStatus
+  } else {
+    // If both keys are in cooldown or over threshold, use the one that will reset sooner
+    return primaryKeyStatus.lastReset < secondaryKeyStatus.lastReset 
+      ? primaryKeyStatus 
+      : secondaryKeyStatus
+  }
+}
 
 interface NeoAsteroid {
   id: string
@@ -63,12 +111,13 @@ export interface SpaceDeal {
 
 export async function fetchNeoAsteroids(): Promise<NeoAsteroid[]> {
   try {
-    // Check if we need to wait before making another API call
-    const now = Date.now()
-    if (now - lastApiCall < API_COOLDOWN) {
+    const apiKeyStatus = getActiveApiKey()
+    
+    // If both keys are in cooldown, return mock data
+    if (apiKeyStatus.cooldown) {
+      console.warn('All API keys in cooldown, using mock data')
       return generateMockAsteroids()
     }
-    lastApiCall = now
 
     const startDate = new Date().toISOString().split('T')[0]
     const endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
@@ -77,7 +126,7 @@ export async function fetchNeoAsteroids(): Promise<NeoAsteroid[]> {
       `https://api.nasa.gov/neo/rest/v1/feed?` +
       `start_date=${startDate}&` +
       `end_date=${endDate}&` +
-      `api_key=${NASA_API_KEY}`,
+      `api_key=${apiKeyStatus.key}`,
       {
         headers: {
           'Accept': 'application/json',
@@ -85,9 +134,13 @@ export async function fetchNeoAsteroids(): Promise<NeoAsteroid[]> {
       }
     )
 
+    // Update call count and check status
+    apiKeyStatus.calls++
+    
     if (response.status === 429) {
-      console.warn('NASA API rate limit reached, using mock data')
-      return generateMockAsteroids()
+      apiKeyStatus.cooldown = true
+      console.warn(`API key ${apiKeyStatus.key.slice(0, 4)}... rate limited, switching keys`)
+      return fetchNeoAsteroids() // Retry with other key
     }
 
     if (!response.ok) {
@@ -95,6 +148,10 @@ export async function fetchNeoAsteroids(): Promise<NeoAsteroid[]> {
     }
 
     const data = await response.json()
+    const remaining = response.headers.get('X-RateLimit-Remaining')
+    if (remaining && parseInt(remaining) < 100) {
+      console.warn(`API key ${apiKeyStatus.key.slice(0, 4)}... approaching limit, ${remaining} calls remaining`)
+    }
     
     // Flatten the nested structure of the NASA API response
     const asteroids = Object.values(data.near_earth_objects)
