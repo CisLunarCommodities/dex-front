@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useMarketData } from '@/lib/market-data'
 import { IconRocket, IconPick, IconChartBar, IconUsers } from '@tabler/icons-react'
+import Link from 'next/link'
+import { fetchNeoAsteroids, generateDealFromAsteroid } from '@/lib/nasa'
 
 interface SpaceDeal {
   id: string
@@ -29,28 +31,40 @@ export default function DealsPage() {
   const [filter, setFilter] = useState('all')
 
   useEffect(() => {
-    // In real app, fetch from API
-    setDeals([
-      {
-        id: 'mission-1',
-        name: 'Asteroid X-227 Mining Operation',
-        type: 'MISSION',
-        description: 'First commercial water extraction mission to near-Earth asteroid',
-        target: 'X-227',
-        resources: ['H2O', 'IRON'],
-        fundingGoal: 50000000,
-        currentFunding: 35000000,
-        roi: 280,
-        timeline: '2025 Q3',
-        risk: 'Medium',
-        status: 'Active',
-        team: {
-          members: 24,
-          experience: '15+ years in aerospace'
-        }
-      },
-      // Add more deals...
-    ])
+    async function loadDeals() {
+      try {
+        const asteroids = await fetchNeoAsteroids()
+        const newDeals = asteroids
+          .filter(asteroid => asteroid.estimated_diameter.kilometers.estimated_diameter_max > 0.1)
+          .map(generateDealFromAsteroid)
+        setDeals(newDeals as unknown as SpaceDeal[])
+      } catch (error) {
+        console.error('Failed to load asteroid deals:', error)
+        // Fallback to sample data
+        setDeals([
+          {
+            id: 'mission-1',
+            name: 'Asteroid X-227 Mining Operation',
+            type: 'MISSION',
+            description: 'First commercial water extraction mission to near-Earth asteroid',
+            target: 'X-227',
+            resources: ['H2O', 'IRON'],
+            fundingGoal: 50000000,
+            currentFunding: 35000000,
+            roi: 280,
+            timeline: '2025 Q3',
+            risk: 'Medium',
+            status: 'Active',
+            team: {
+              members: 24,
+              experience: '15+ years in aerospace'
+            }
+          },
+          // Add more deals...
+        ])
+      }
+    }
+    loadDeals()
   }, [])
 
   return (
@@ -130,6 +144,9 @@ export default function DealsPage() {
                 {deal.resources.map(resource => (
                   <span key={resource} className="badge badge-primary">{resource}</span>
                 ))}
+                <Link href={`/deals/${deal.id}`} className="btn btn-primary btn-sm ml-auto">
+                  View Details
+                </Link>
               </div>
 
               <div className="mt-4">
