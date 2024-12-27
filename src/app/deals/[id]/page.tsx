@@ -6,6 +6,7 @@ import { IconRocket, IconAlertTriangle } from '@tabler/icons-react'
 import { PriceChart } from '@/components/ui/ui-price-chart'
 import { fetchNeoAsteroids, generateDealFromAsteroid, type SpaceDeal } from '@/lib/nasa'
 import clsx from 'clsx'
+import { usePriceFeed, setupPriceWebsocket } from '@/lib/price-feed'
 
 export default function DealPage() {
   const params = useParams()
@@ -14,6 +15,7 @@ export default function DealPage() {
   const [investmentAmount, setInvestmentAmount] = useState('')
   const [tradeType, setTradeType] = useState<'buy' | 'sell'>('buy')
   const [amount, setAmount] = useState('')
+  const { prices, currentPrice, isLoading, error, fetchPrices } = usePriceFeed()
 
   const presetAmounts = [
     { label: 'reset', value: '' },
@@ -89,6 +91,33 @@ export default function DealPage() {
     
     loadDeal()
   }, [params.id])
+  useEffect(() => {
+    if (deal?.id) {
+      // Initial price fetch
+      fetchPrices(deal.id)
+      // Setup websocket for real-time updates
+      const ws = setupPriceWebsocket(deal.id)
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data)
+        if (data.method === 'priceUpdate') {
+          // Update price in store
+          usePriceFeed.setState((state) => ({
+            currentPrice: data.params.price,
+            prices: [...state.prices, {
+              time: new Date().toISOString().split('T')[0],
+              open: state.currentPrice,
+              high: Math.max(state.currentPrice, data.params.price),
+              low: Math.min(state.currentPrice, data.params.price),
+              close: data.params.price
+            }]
+          }))
+        }
+      }
+
+      return () => ws.close()
+    }
+  }, [deal?.id])
 
   if (loading) {
     return (
