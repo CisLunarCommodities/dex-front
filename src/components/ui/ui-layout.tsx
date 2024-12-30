@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ReactNode, useState, useRef, useEffect } from 'react'
-import { IconUsers, IconRocket, IconMenu2, IconX } from '@tabler/icons-react'
+import { IconRocket, IconMenu2, IconX } from '@tabler/icons-react'
 import { WalletButton } from '../solana/solana-provider'
 import toast from 'react-hot-toast'
 
@@ -12,10 +12,9 @@ export function AppHeader() {
   const pathname = usePathname()
 
   const navigation = [
-    { name: 'Market', href: '/market' },
-    { name: 'Deals', href: '/deals' },
-    { name: 'Clusters', href: '/clusters' },
-    { name: 'About', href: '/about' },
+    { name: 'Market', href: '/market', icon: '📊' },
+    { name: 'Deals', href: '/deals', icon: '🚀' },
+    { name: 'About', href: '/about', icon: 'ℹ️' },
   ]
 
   return (
@@ -36,11 +35,12 @@ export function AppHeader() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`text-sm font-medium hover:text-primary ${
+                  className={`text-sm font-medium hover:text-primary flex items-center gap-2 ${
                     pathname === item.href ? 'text-primary' : 'text-base-content'
                   }`}
                 >
-                  {item.name}
+                  <span>{item.icon}</span>
+                  <span>{item.name}</span>
                 </Link>
               ))}
             </div>
@@ -72,12 +72,13 @@ export function AppHeader() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`text-sm font-medium hover:text-primary ${
+                  className={`text-sm font-medium hover:text-primary flex items-center gap-2 ${
                     pathname === item.href ? 'text-primary' : 'text-base-content'
                   }`}
                   onClick={() => setIsOpen(false)}
                 >
-                  {item.name}
+                  <span>{item.icon}</span>
+                  <span>{item.name}</span>
                 </Link>
               ))}
               <div className="flex flex-col gap-4 pt-4 border-t border-base-300">
