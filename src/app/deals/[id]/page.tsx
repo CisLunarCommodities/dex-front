@@ -28,15 +28,21 @@ export default function DealPage() {
     async function loadDeal() {
       try {
         const asteroids = await fetchNeoAsteroids()
-        const asteroid = asteroids.find(a => a.neo_reference_id === params.id)
+        const searchId = params.id.toString().replace(/^(mock|asteroid-)/i, '')
+        const asteroid = asteroids.find(a => 
+          a.neo_reference_id === searchId || 
+          a.neo_reference_id === `mock${searchId}` ||
+          a.id === searchId
+        )
         
         if (!asteroid) {
           console.error('Asteroid not found:', params.id)
+          setDeal(null)
+          setLoading(false)
           return
         }
 
         const dealData = generateDealFromAsteroid(asteroid)
-        // Add additional details for the full page view
         const enhancedDeal = {
           ...dealData,
           longDescription: `This groundbreaking mission targets ${asteroid.name}, a ${
@@ -240,7 +246,7 @@ export default function DealPage() {
                   <div className="flex items-center gap-2">
                     <span className="text-xl">SOL</span>
                     <img 
-                      src="/solana-logo.png" 
+                      src="/solana-logo.svg" 
                       alt="SOL" 
                       className="w-6 h-6"
                     />

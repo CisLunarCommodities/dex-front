@@ -260,9 +260,10 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredDeals.map((deal) => (
-            <div 
-              key={deal.id}
-              className="bg-[#1a1b1e] rounded-lg overflow-hidden"
+            <Link 
+              href={`/deals/${deal.id}`}
+              key={deal.id} 
+              className="bg-[#1a1b1e] rounded-lg overflow-hidden hover:bg-[#2a2b2e] transition-colors"
             >
               <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
@@ -337,13 +338,13 @@ export default function HomePage() {
                 </div>
 
                 <Link 
-                  href={`/deal/${deal.id}`}
+                  href={`/deals/${deal.id}`}
                   className="block w-full text-center py-3 bg-purple-600 hover:bg-purple-700 transition-colors rounded-lg font-medium"
                 >
                   View Details
                 </Link>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
