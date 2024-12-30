@@ -3,113 +3,104 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ReactNode, useState, useRef, useEffect } from 'react'
-import toast, { Toaster } from 'react-hot-toast'
-import { useAffiliate } from '@/lib/affiliate'
 import { IconUsers, IconRocket, IconMenu2, IconX } from '@tabler/icons-react'
 import { WalletButton } from '../solana/solana-provider'
-import { ClusterUiSelect } from '../cluster/cluster-ui'
+import toast from 'react-hot-toast'
 
-export function UiLayout({ children }: { children: ReactNode }) {
+export function AppHeader() {
+  const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
-  const { affiliate } = useAffiliate()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  const navLinks = [
-    { href: '/', label: 'Swap', emoji: '🔄' },
-    { href: '/market', label: 'Market', emoji: '📊' },
-    { 
-      href: '/deals', 
-      label: 'Deals',
-      emoji: '🚀',
-      icon: <IconRocket size={16} />
-    },
-    { 
-      href: '/affiliate', 
-      label: 'Affiliate',
-      emoji: '👥',
-      icon: <IconUsers size={16} />,
-      badge: affiliate?.shares && Object.keys(affiliate.shares).length > 0 
-        ? Object.values(affiliate.shares).reduce((a, b) => a + b, 0)
-        : null
-    },
-    { href: '/info', label: 'Info', emoji: 'ℹ️' },
-    { href: '/about', label: 'About', emoji: '💫' }
+  const navigation = [
+    { name: 'Market', href: '/market' },
+    { name: 'Deals', href: '/deals' },
+    { name: 'Clusters', href: '/clusters' },
+    { name: 'About', href: '/about' },
   ]
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="navbar bg-base-300 text-neutral-content">
-        <div className="flex-1 items-center">
-          <Link className="text-xl font-semibold" href="/">
-            🌌 Cislunar Exchange
-          </Link>
-          
-          {/* Desktop Navigation */}
-          <div className="ml-8 hidden md:flex items-center space-x-2">
-            {navLinks.map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`px-3 py-1 rounded-lg flex items-center gap-2 ${
-                  pathname === link.href ? 'bg-primary text-primary-content' : 'hover:bg-base-100'
-                }`}
-              >
-                <span className="text-lg">{link.emoji}</span>
-                {link.label}
-                {link.badge && (
-                  <span className="badge badge-sm badge-secondary">{link.badge}</span>
-                )}
-              </Link>
-            ))}
-          </div>
-
-          {/* Desktop Wallet */}
-          <div className="hidden md:flex items-center ml-auto gap-2">
-            <ClusterUiSelect />
-            <WalletButton />
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button 
-            className="ml-auto md:hidden btn btn-ghost btn-circle"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <IconX size={24} /> : <IconMenu2 size={24} />}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Menu */}
-      <div className={`md:hidden ${isMenuOpen ? 'block' : 'hidden'}`}>
-        <div className="bg-base-200 p-4">
-          {navLinks.map(link => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex items-center gap-2 px-4 py-3 rounded-lg mb-2 ${
-                pathname === link.href ? 'bg-primary text-primary-content' : 'hover:bg-base-100'
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <span className="text-lg">{link.emoji}</span>
-              {link.label}
-              {link.badge && (
-                <span className="badge badge-sm badge-secondary ml-auto">{link.badge}</span>
-              )}
+    <header className="bg-base-200">
+      <nav className="container mx-auto px-4 sm:px-6 lg:px-8" aria-label="Top">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center gap-2">
+              <IconRocket className="text-primary" size={24} />
+              <span className="text-xl font-bold">CisLunar</span>
             </Link>
-          ))}
-          
-          <div className="border-t border-base-300 my-4" />
-          
-          <div className="space-y-4 px-4">
-            <ClusterUiSelect />
-            <WalletButton />
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-8">
+            <div className="flex gap-6">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`text-sm font-medium hover:text-primary ${
+                    pathname === item.href ? 'text-primary' : 'text-base-content'
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+            <div className="flex items-center gap-4">
+              <WalletButton />
+            </div>
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="inline-flex items-center justify-center p-2 rounded-md hover:bg-base-300"
+            >
+              {isOpen ? (
+                <IconX size={24} />
+              ) : (
+                <IconMenu2 size={24} />
+              )}
+            </button>
           </div>
         </div>
-      </div>
 
-      {children}
-      <Toaster position="bottom-right" />
+        {/* Mobile Navigation */}
+        {isOpen && (
+          <div className="md:hidden py-4">
+            <div className="flex flex-col gap-4">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`text-sm font-medium hover:text-primary ${
+                    pathname === item.href ? 'text-primary' : 'text-base-content'
+                  }`}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              ))}
+              <div className="flex flex-col gap-4 pt-4 border-t border-base-300">
+                <WalletButton />
+              </div>
+            </div>
+          </div>
+        )}
+      </nav>
+    </header>
+  )
+}
+
+export function AppHero({ children, title, subtitle }: { children?: ReactNode; title: ReactNode; subtitle?: ReactNode }) {
+  return (
+    <div className="hero py-[64px]">
+      <div className="hero-content text-center">
+        <div className="max-w-2xl">
+          <h1 className="text-5xl font-bold">{title}</h1>
+          {subtitle && <p className="py-6">{subtitle}</p>}
+          {children}
+        </div>
+      </div>
     </div>
   )
 }
@@ -161,28 +152,6 @@ export function AppModal({
         </div>
       </div>
     </dialog>
-  )
-}
-
-export function AppHero({
-  title,
-  subtitle,
-  children,
-}: {
-  title: ReactNode
-  subtitle?: ReactNode
-  children?: ReactNode
-}) {
-  return (
-    <div className="hero py-[64px]">
-      <div className="hero-content text-center">
-        <div className="max-w-2xl">
-          {title}
-          {subtitle}
-          {children}
-        </div>
-      </div>
-    </div>
   )
 }
 

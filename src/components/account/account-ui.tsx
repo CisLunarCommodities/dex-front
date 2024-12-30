@@ -6,8 +6,6 @@ import { IconRefresh } from '@tabler/icons-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { AppModal, ellipsify } from '../ui/ui-layout'
-import { useCluster } from '../cluster/cluster-data-access'
-import { ExplorerLink } from '../cluster/cluster-ui'
 import {
   useGetBalance,
   useGetSignatures,
@@ -35,13 +33,8 @@ export function AccountChecker() {
   return <AccountBalanceCheck address={publicKey} />
 }
 export function AccountBalanceCheck({ address }: { address: PublicKey }) {
-  const { cluster } = useCluster()
   const mutation = useRequestAirdrop({ address })
   const query = useGetBalance({ address })
-
-  if (cluster.network?.includes('mainnet')) {
-    return null
-  }
 
   if (query.isLoading) {
     return null
@@ -50,7 +43,7 @@ export function AccountBalanceCheck({ address }: { address: PublicKey }) {
     return (
       <div className="alert alert-warning text-warning-content/80 rounded-none flex justify-center">
         <span>
-          You are connected to <strong>{cluster.name}</strong> but your account is not found on this cluster.
+          Account not found. Request an airdrop to get started.
         </span>
         <button
           className="btn btn-xs btn-neutral"
@@ -66,7 +59,6 @@ export function AccountBalanceCheck({ address }: { address: PublicKey }) {
 
 export function AccountButtons({ address }: { address: PublicKey }) {
   const wallet = useWallet()
-  const { cluster } = useCluster()
   const [showAirdropModal, setShowAirdropModal] = useState(false)
   const [showReceiveModal, setShowReceiveModal] = useState(false)
   const [showSendModal, setShowSendModal] = useState(false)
@@ -78,14 +70,12 @@ export function AccountButtons({ address }: { address: PublicKey }) {
       <ModalSend address={address} show={showSendModal} hide={() => setShowSendModal(false)} />
       <div className="space-x-2">
         <button
-          disabled={cluster.network?.includes('mainnet')}
           className="btn btn-xs lg:btn-md btn-outline"
           onClick={() => setShowAirdropModal(true)}
         >
           Airdrop
         </button>
         <button
-          disabled={wallet.publicKey?.toString() !== address.toString()}
           className="btn btn-xs lg:btn-md btn-outline"
           onClick={() => setShowSendModal(true)}
         >
@@ -152,17 +142,14 @@ export function AccountTokens({ address }: { address: PublicKey }) {
                     <td>
                       <div className="flex space-x-2">
                         <span className="font-mono">
-                          <ExplorerLink label={ellipsify(pubkey.toString())} path={`account/${pubkey.toString()}`} />
+                          {ellipsify(pubkey.toString())}
                         </span>
                       </div>
                     </td>
                     <td>
                       <div className="flex space-x-2">
                         <span className="font-mono">
-                          <ExplorerLink
-                            label={ellipsify(account.data.parsed.info.mint)}
-                            path={`account/${account.data.parsed.info.mint.toString()}`}
-                          />
+                          {ellipsify(account.data.parsed.info.mint)}
                         </span>
                       </div>
                     </td>
@@ -171,7 +158,6 @@ export function AccountTokens({ address }: { address: PublicKey }) {
                     </td>
                   </tr>
                 ))}
-
                 {(query.data?.length ?? 0) > 5 && (
                   <tr>
                     <td colSpan={4} className="text-center">
@@ -191,9 +177,8 @@ export function AccountTokens({ address }: { address: PublicKey }) {
 }
 
 export function AccountTransactions({ address }: { address: PublicKey }) {
-  const query = useGetSignatures({ address })
   const [showAll, setShowAll] = useState(false)
-
+  const query = useGetSignatures({ address })
   const items = useMemo(() => {
     if (showAll) return query.data
     return query.data?.slice(0, 5)
@@ -232,12 +217,11 @@ export function AccountTransactions({ address }: { address: PublicKey }) {
                 {items?.map((item) => (
                   <tr key={item.signature}>
                     <th className="font-mono">
-                      <ExplorerLink path={`tx/${item.signature}`} label={ellipsify(item.signature, 8)} />
+                      {ellipsify(item.signature, 8)}
                     </th>
                     <td className="font-mono text-right">
-                      <ExplorerLink path={`block/${item.slot}`} label={item.slot.toString()} />
+                      {item.slot.toString()}
                     </td>
-                    <td>{new Date((item.blockTime ?? 0) * 1000).toISOString()}</td>
                     <td className="text-right">
                       {item.err ? (
                         <div className="badge badge-error" title={JSON.stringify(item.err)}>

@@ -1,14 +1,25 @@
-import { WalletButton } from '@/components/solana/solana-provider'
-import { Providers } from '@/components/providers'
-import Link from 'next/link'
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
 import './globals.css'
+import { AppHeader } from '@/components/ui/ui-layout'
+import { Providers } from './providers'
 
-const navigation = [
-  { name: '🚀 Deals', href: '/' },
-  { name: '💱 Swap', href: '/swaps' },
-  { name: '📊 Market', href: '/market' },
-  { name: 'ℹ️ About', href: '/about' },
-]
+const inter = Inter({ subsets: ['latin'] })
+
+export const metadata: Metadata = {
+  title: 'CisLunar Commodities Exchange',
+  description: 'Invest in the future of space resource extraction',
+  icons: {
+    icon: [
+      { url: '/app/favicon.ico', sizes: 'any' },
+      { url: '/app/icon.png', sizes: '32x32', type: 'image/png' }
+    ],
+    apple: [
+      { url: '/app/icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
+  manifest: '/app/manifest.json',
+}
 
 export default function RootLayout({
   children,
@@ -17,32 +28,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <head>
+        <link rel="shortcut icon" href="/app/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/app/icon.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/app/icon.png" />
+      </head>
+      <body className={inter.className}>
         <Providers>
-          <div className="min-h-screen bg-black text-white">
-            <header className="border-b border-white/10">
-              <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
-                <div className="flex items-center gap-8">
-                  <Link href="/" className="text-xl font-bold">
-                    CisLunar Commodities Exchange
-                  </Link>
-                  <div className="flex gap-6">
-                    {navigation.map((item) => (
-                      <Link
-                        key={item.name}
-                        href={item.href}
-                        className="text-gray-300 hover:text-white transition-colors"
-                      >
-                        {item.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-                <WalletButton />
-              </nav>
-            </header>
-            {children}
-          </div>
+          <AppHeader />
+          {children}
         </Providers>
       </body>
     </html>

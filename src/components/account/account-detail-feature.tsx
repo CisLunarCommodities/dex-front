@@ -2,10 +2,7 @@
 
 import { PublicKey } from '@solana/web3.js'
 import { useMemo } from 'react'
-
 import { useParams } from 'next/navigation'
-
-import { ExplorerLink } from '../cluster/cluster-ui'
 import { AppHero, ellipsify } from '../ui/ui-layout'
 import { AccountBalance, AccountButtons, AccountTokens, AccountTransactions } from './account-ui'
 
@@ -21,6 +18,7 @@ export default function AccountDetailFeature() {
       console.log(`Invalid public key`, e)
     }
   }, [params])
+
   if (!address) {
     return <div>Error loading account</div>
   }
@@ -31,7 +29,7 @@ export default function AccountDetailFeature() {
         title={<AccountBalance address={address} />}
         subtitle={
           <div className="my-4">
-            <ExplorerLink path={`account/${address}`} label={ellipsify(address.toString())} />
+            {ellipsify(address.toString())}
           </div>
         }
       >
