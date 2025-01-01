@@ -1,46 +1,34 @@
 'use client'
 
-import { PublicKey } from '@solana/web3.js'
-import { useMemo } from 'react'
 import { useParams } from 'next/navigation'
-import { AppHero, ellipsify } from '../ui/ui-layout'
-import { AccountBalance, AccountButtons, AccountTokens, AccountTransactions } from './account-ui'
+import { useMemo } from 'react'
+import { PublicKey } from '@solana/web3.js'
+import { AccountBalance } from './account-ui'
+import { AccountTokens } from './account-tokens'
+import { AccountTransactions } from './account-transactions'
 
 export default function AccountDetailFeature() {
   const params = useParams()
   const address = useMemo(() => {
-    if (!params.address) {
-      return
+    if (!params?.address) {
+      return undefined
     }
     try {
-      return new PublicKey(params.address)
+      return new PublicKey(params.address as string)
     } catch (e) {
-      console.log(`Invalid public key`, e)
+      return undefined
     }
   }, [params])
 
   if (!address) {
-    return <div>Error loading account</div>
+    return <div>Invalid address</div>
   }
 
   return (
-    <div>
-      <AppHero
-        title={<AccountBalance address={address} />}
-        subtitle={
-          <div className="my-4">
-            {ellipsify(address.toString())}
-          </div>
-        }
-      >
-        <div className="my-4">
-          <AccountButtons address={address} />
-        </div>
-      </AppHero>
-      <div className="space-y-8">
-        <AccountTokens address={address} />
-        <AccountTransactions address={address} />
-      </div>
+    <div className="space-y-8">
+      <AccountBalance address={address} />
+      <AccountTokens address={address} />
+      <AccountTransactions address={address} />
     </div>
   )
 }

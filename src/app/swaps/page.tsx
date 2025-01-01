@@ -27,11 +27,22 @@ const spaceTokens = [
   }
 ]
 
+interface TokenBalance {
+  mint: string
+  balance: number
+}
+
 export default function SwapsPage() {
+  const { connected } = useWallet()
+  const { data: tokenBalances, isLoading, error } = useAllTokenBalances()
   const [amount, setAmount] = useState('')
   const [selectedToken, setSelectedToken] = useState(spaceTokens[0])
-  const { publicKey } = useWallet()
-  const { data: balances, isLoading: loading } = useAllTokenBalances()
+  const [loading, setLoading] = useState(false)
+
+  const balances = tokenBalances?.reduce((acc: Record<string, number>, token: TokenBalance) => {
+    acc[token.mint] = token.balance
+    return acc
+  }, {})
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -73,7 +84,9 @@ export default function SwapsPage() {
                 amount: (parseFloat(amount || '0') * 100).toString()
               }}
               onSwap={async () => {
+                setLoading(true)
                 console.log('Swapping...')
+                setLoading(false)
               }}
               isLoading={loading}
             />

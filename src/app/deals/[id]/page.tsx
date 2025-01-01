@@ -7,6 +7,7 @@ import { PriceChart } from '@/components/ui/ui-price-chart'
 import { fetchNeoAsteroids, generateDealFromAsteroid, type SpaceDeal } from '@/lib/nasa'
 import clsx from 'clsx'
 import { usePriceFeed, setupPriceWebsocket } from '@/lib/price-feed'
+import Image from 'next/image'
 
 export default function DealPage() {
   const params = useParams()
@@ -28,15 +29,20 @@ export default function DealPage() {
     async function loadDeal() {
       try {
         const asteroids = await fetchNeoAsteroids()
+        if (!params || !params.id) {
+          console.error('Invalid parameters:', params)
+          setDeal(null)
+          setLoading(false)
+          return
+        }
         const searchId = params.id.toString().replace(/^(mock|asteroid-)/i, '')
         const asteroid = asteroids.find(a => 
           a.neo_reference_id === searchId || 
           a.neo_reference_id === `mock${searchId}` ||
           a.id === searchId
         )
-        
         if (!asteroid) {
-          console.error('Asteroid not found:', params.id)
+          console.error('Asteroid not found:', params?.id)
           setDeal(null)
           setLoading(false)
           return
@@ -91,12 +97,13 @@ export default function DealPage() {
         setLoading(false)
       } catch (error) {
         console.error('Error loading deal:', error)
+        setDeal(null)
         setLoading(false)
       }
     }
-    
     loadDeal()
-  }, [params.id])
+  }, [params, fetchPrices])
+
   useEffect(() => {
     if (deal?.id) {
       // Initial price fetch
@@ -245,10 +252,12 @@ export default function DealPage() {
                   />
                   <div className="flex items-center gap-2">
                     <span className="text-xl">SOL</span>
-                    <img 
+                    <Image 
                       src="/solana-logo.svg" 
                       alt="SOL" 
                       className="w-6 h-6"
+                      width={24}
+                      height={24}
                     />
                   </div>
                 </div>
