@@ -1,7 +1,10 @@
 import { PublicKey } from '@solana/web3.js'
+import { Connection } from '@solana/web3.js'
+import { getMint, TOKEN_PROGRAM_ID } from '@solana/spl-token'
 
 const HELIUS_API_KEY = process.env.NEXT_PUBLIC_HELIUS_API_KEY
 const HELIUS_RPC_URL = `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`
+const TOKEN_2022_PROGRAM_ID = new PublicKey('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb')
 
 interface AssetResponse {
   interface: string
@@ -135,4 +138,11 @@ export async function getTokenPrice(mintAddress: string) {
 
   const { result } = await response.json()
   return result.token_info?.price ?? null
-} 
+}
+
+export async function fetchTokenSupply(mintAddress: string): Promise<number> {
+  const connection = new Connection(HELIUS_RPC_URL)
+  const mintPublicKey = new PublicKey(mintAddress)
+  const mintInfo = await getMint(connection, mintPublicKey, undefined, TOKEN_2022_PROGRAM_ID)
+  return Number(mintInfo.supply) / Math.pow(10, mintInfo.decimals)
+}

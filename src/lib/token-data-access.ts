@@ -18,19 +18,19 @@ interface TokenAsset {
   }
 }
 
-// Define our space tokens with their addresses
 export const SPACE_TOKENS = {
-  LOX: new PublicKey('G9d1PgcUULzaoRKpWkJEjJEs5way8YNu8zaaVuBkn86V'),
-  H3: new PublicKey('FXCSq5MRYdB8DRR7fEBKMoufgdALUP9egb9wDbUxAEnj'),
+  LOX: new PublicKey(process.env.NEXT_PUBLIC_LOX_TOKEN_MINT!),
+  H3: new PublicKey(process.env.NEXT_PUBLIC_H3_TOKEN_MINT!),
 } as const
 
 export function useAllTokenBalances() {
   const { publicKey } = useWallet()
+  const { connection } = useConnection()
 
   return useQuery({
     queryKey: ['all-token-balances', publicKey?.toString()],
     queryFn: async () => {
-      if (!publicKey) return null
+      if (!publicKey) return []
 
       try {
         // Get all assets owned by the wallet
@@ -50,18 +50,16 @@ export function useAllTokenBalances() {
               Number(asset.token_info.balance) / Math.pow(10, asset.token_info.decimals || 0) : 
               0,
             decimals: asset.token_info?.decimals || 0,
-            price: 0 // We'll update this with real price data when available
           }))
 
         return spaceTokens
-
       } catch (error) {
         console.error('Error fetching token balances:', error)
         throw error
       }
     },
     enabled: !!publicKey,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 30000,
   })
 }
 

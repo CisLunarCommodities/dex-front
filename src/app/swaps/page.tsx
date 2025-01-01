@@ -6,6 +6,7 @@ import { TokenInput } from '@/components/ui/ui-input'
 import { TokenSelect } from '@/components/ui/ui-token-select'
 import { SwapButton } from '@/components/ui/ui-swap-button'
 import { useWallet } from '@solana/wallet-adapter-react'
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 
 const spaceTokens = [
   {
@@ -36,7 +37,10 @@ export default function SwapsPage() {
     <div className="min-h-screen bg-black text-white">
       <div className="max-w-xl mx-auto pt-16 px-4">
         <div className="bg-[#1a1b1e] rounded-lg p-6">
-          <h1 className="text-2xl font-bold mb-8">Trade Space Resources</h1>
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-2xl font-bold">Trade Space Resources</h1>
+            <WalletMultiButton />
+          </div>
           
           <div className="space-y-6">
             <TokenInput
@@ -56,7 +60,7 @@ export default function SwapsPage() {
               tokenSymbol={selectedToken.symbol}
               tokenIcon={selectedToken.icon}
               onTokenSelect={() => {}}
-              balance={0}
+              balance={balances?.[selectedToken.address] || 0}
             />
 
             <SwapButton
@@ -69,7 +73,6 @@ export default function SwapsPage() {
                 amount: (parseFloat(amount || '0') * 100).toString()
               }}
               onSwap={async () => {
-                // Swap logic here
                 console.log('Swapping...')
               }}
               isLoading={loading}
@@ -79,4 +82,6 @@ export default function SwapsPage() {
       </div>
     </div>
   )
-} 
+}
+
+export const dynamic = 'force-dynamic' 
