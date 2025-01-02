@@ -14,8 +14,6 @@ export function AppHeader() {
   const pathname = usePathname()
 
   const navigation = [
-    { name: 'Market', href: '/market', icon: '📊' },
-    { name: 'Deals', href: '/deals', icon: '🚀' },
     { name: 'About', href: '/about', icon: 'ℹ️' },
   ]
 
@@ -26,7 +24,7 @@ export function AppHeader() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2">
               <IconRocket className="text-primary" size={24} />
-              <span className="text-xl font-bold">CisLunar</span>
+              <span className="text-xl font-bold">CisLunar Commodities Exchange</span>
             </Link>
           </div>
 

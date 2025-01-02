@@ -87,7 +87,7 @@ export default function HomePage() {
         {/* Recent Deals */}
         <section className="mb-12">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">Recent Deals</h2>
+            <h2 className="text-2xl font-bold">Upcoming Deals</h2>
             <Link href="/deals" className="text-primary hover:text-primary-focus">
               View All Deals
             </Link>
