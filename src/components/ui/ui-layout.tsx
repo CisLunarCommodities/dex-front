@@ -6,6 +6,7 @@ import { ReactNode, useState, useRef, useEffect } from 'react'
 import { IconRocket, IconMenu2, IconX, IconBulb } from '@tabler/icons-react'
 import { WalletButton } from '../solana/solana-provider'
 import { IncubateForm } from '../incubate/incubate-form'
+import toast from 'react-hot-toast'
 
 export function AppHeader() {
   const [isOpen, setIsOpen] = useState(false)
@@ -145,9 +146,10 @@ export function ellipsify(str: string, start = 4, end = 4) {
 }
 
 export function useTransactionToast() {
+  const { toast } = useToast()
   return (signature: string) => {
     toast.success(
-      <div className={'text-center'}>
+      <div className="text-center">
         <div className="text-lg">Transaction sent</div>
         <Link href={`https://explorer.solana.com/tx/${signature}`} target="_blank" className="btn btn-xs btn-primary">
           View Transaction
@@ -155,5 +157,9 @@ export function useTransactionToast() {
       </div>,
     )
   }
+}
+
+function useToast(): { toast: any } {
+  throw new Error('Function not implemented.')
 }
 
