@@ -1,14 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Line } from 'react-chartjs-2'
+import { Bar } from 'react-chartjs-2'
 import { fetchTokenSupply } from '@/lib/helius'
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend
@@ -17,8 +16,7 @@ import {
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend
@@ -35,8 +33,10 @@ export function TokenCharts() {
       try {
         if (H3_MINT_ADDRESS) {
           const supply = await fetchTokenSupply(H3_MINT_ADDRESS)
-          setH3Data([supply])
-          setLabels(['Current Supply'])
+          const date = new Date().toLocaleDateString()
+          
+          setH3Data(prev => [...prev, supply].slice(-30))
+          setLabels(prev => [...prev, date].slice(-30))
         }
       } catch (error) {
         console.error('Error fetching H3 supply:', error)
@@ -44,7 +44,7 @@ export function TokenCharts() {
     }
 
     fetchData()
-    const interval = setInterval(fetchData, 60000)
+    const interval = setInterval(fetchData, 86400000)
     return () => clearInterval(interval)
   }, [])
 
@@ -53,8 +53,11 @@ export function TokenCharts() {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top' as const,
+        position: 'bottom' as const,
+        align: 'center' as const,
         labels: {
+          boxWidth: 20,
+          padding: 20,
           color: '#ffffff'
         }
       }
@@ -73,7 +76,9 @@ export function TokenCharts() {
           color: 'rgba(255, 255, 255, 0.1)'
         },
         ticks: {
-          color: '#ffffff'
+          color: '#ffffff',
+          maxRotation: 45,
+          minRotation: 45
         }
       }
     }
@@ -82,10 +87,11 @@ export function TokenCharts() {
   const h3ChartData = {
     labels,
     datasets: [{
-      label: 'H3 Supply',
+      label: 'H3 Daily Supply',
       data: h3Data,
+      backgroundColor: 'rgba(255, 99, 132, 0.5)',
       borderColor: 'rgb(255, 99, 132)',
-      tension: 0.1,
+      borderWidth: 1
     }]
   }
 
@@ -104,7 +110,7 @@ export function TokenCharts() {
       </div>
       <div className="bg-[#1a1b1e] p-4 rounded-lg h-[400px]">
         <h2 className="text-xl font-bold mb-4 text-white">H3 Supply Chart</h2>
-        <Line options={chartOptions} data={h3ChartData} />
+        <Bar options={chartOptions} data={h3ChartData} />
       </div>
     </div>
   )
