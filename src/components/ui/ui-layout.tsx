@@ -3,12 +3,13 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ReactNode, useState, useRef, useEffect } from 'react'
-import { IconRocket, IconMenu2, IconX } from '@tabler/icons-react'
+import { IconRocket, IconMenu2, IconX, IconBulb } from '@tabler/icons-react'
 import { WalletButton } from '../solana/solana-provider'
-import toast from 'react-hot-toast'
+import { IncubateForm } from '../incubate/incubate-form'
 
 export function AppHeader() {
   const [isOpen, setIsOpen] = useState(false)
+  const [showIncubateForm, setShowIncubateForm] = useState(false)
   const pathname = usePathname()
 
   const navigation = [
@@ -43,6 +44,13 @@ export function AppHeader() {
                   <span>{item.name}</span>
                 </Link>
               ))}
+              <button
+                onClick={() => setShowIncubateForm(true)}
+                className="text-sm font-medium hover:text-primary flex items-center gap-2"
+              >
+                <IconBulb size={20} />
+                <span>Incubate</span>
+              </button>
             </div>
             <div className="flex items-center gap-4">
               <WalletButton />
@@ -55,39 +63,14 @@ export function AppHeader() {
               onClick={() => setIsOpen(!isOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md hover:bg-base-300"
             >
-              {isOpen ? (
-                <IconX size={24} />
-              ) : (
-                <IconMenu2 size={24} />
-              )}
+              {isOpen ? <IconX size={24} /> : <IconMenu2 size={24} />}
             </button>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        {isOpen && (
-          <div className="md:hidden py-4">
-            <div className="flex flex-col gap-4">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`text-sm font-medium hover:text-primary flex items-center gap-2 ${
-                    pathname === item.href ? 'text-primary' : 'text-base-content'
-                  }`}
-                  onClick={() => setIsOpen(false)}
-                >
-                  <span>{item.icon}</span>
-                  <span>{item.name}</span>
-                </Link>
-              ))}
-              <div className="flex flex-col gap-4 pt-4 border-t border-base-300">
-                <WalletButton />
-              </div>
-            </div>
-          </div>
-        )}
       </nav>
+
+      {/* Incubate Form Modal */}
+      <IncubateForm show={showIncubateForm} onClose={() => setShowIncubateForm(false)} />
     </header>
   )
 }
