@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react'
 import { useMarketData } from '@/lib/market-data'
 import { IconRocket, IconPick, IconChartBar, IconUsers, IconBuilding, IconPlus } from '@tabler/icons-react'
-import Link from 'next/link'
 import { fetchNeoAsteroids, generateDealFromAsteroid } from '@/lib/nasa'
 import { MissionCreator } from '@/components/mission/mission-creator'
 import { CompanyCreator } from '@/components/company/company-creator'
 import { TokenCharts } from '@/components/charts/token-charts'
+import Image from 'next/image'
 
 interface SpaceDeal {
   id: string
@@ -60,9 +60,45 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-black text-white">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-b from-[#1a1b1e] to-black py-20">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <div className="flex justify-center mb-8">
+              <Image 
+                src="/cce.png" 
+                alt="CCE Logo" 
+                width={240} 
+                height={240}
+                className="mb-6"
+              />
+            </div>
+            <h1 className="text-5xl font-bold mb-6">CisLunar Commodities Exchange</h1>
+            <p className="text-xl text-gray-400 mb-8">
+              The first decentralized platform facilitating the trade of space resources 
+              and investment in space-focused ventures.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+              <div className="bg-black/30 rounded-lg p-6">
+                <h3 className="text-lg font-bold mb-2">Trade Resources</h3>
+                <p className="text-gray-400">
+                  Access tokenized space resources like Helium-3 and Liquid Oxygen
+                </p>
+              </div>
+              <div className="bg-black/30 rounded-lg p-6">
+                <h3 className="text-lg font-bold mb-2">Built on Solana</h3>
+                <p className="text-gray-400">
+                  Fast and low-cost transactions for space economy participants
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="container mx-auto px-4 py-8">
-        {/* Action Buttons */}
-        <div className="flex gap-4 mb-8">
+        {/* Action Buttons - Now Centered */}
+        <div className="flex justify-center gap-4 mb-8">
           <button
             onClick={() => setShowMissionCreator(true)}
             className="btn btn-primary"
@@ -79,57 +115,43 @@ export default function HomePage() {
           </button>
         </div>
 
-        {/* Token Charts */}
-        <section className="mb-12">
-          <TokenCharts />
-        </section>
+        {/* Charts Section */}
+        <TokenCharts />
 
-        {/* Recent Deals */}
-        <section className="mb-12">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">Upcoming Deals</h2>
-            <Link href="/deals" className="text-primary hover:text-primary-focus">
-              View All Deals
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {deals.slice(0, 3).map((deal) => (
-              <Link key={deal.id} href={`/deals/${deal.id}`}>
-                <div className="bg-[#1a1b1e] rounded-lg p-6 hover:bg-[#2d2e31] transition-colors">
-                  <div className="flex items-center gap-4 mb-4">
-                    {deal.type === 'MISSION' ? (
-                      <IconRocket className="text-purple-500" size={24} />
-                    ) : (
-                      <IconBuilding className="text-blue-500" size={24} />
-                    )}
-                    <h3 className="text-xl font-bold">{deal.name}</h3>
-                  </div>
-                  <p className="text-gray-400 mb-4 line-clamp-2">{deal.description}</p>
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm">
-                      <span className="text-gray-400">Target ROI:</span>{' '}
-                      <span className="text-white font-bold">{deal.roi}%</span>
-                    </div>
-                    <div className="text-sm">
-                      <span className="text-gray-400">Risk:</span>{' '}
-                      <span className="text-white font-bold">{deal.risk}</span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+        {/* Deals Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+          {deals.map((deal) => (
+            <div key={deal.id} className="bg-[#1a1b1e] rounded-lg p-6">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-xl font-bold">{deal.name}</h3>
+                <span className={`px-2 py-1 rounded text-sm ${
+                  deal.risk === 'Low' ? 'bg-green-900 text-green-300' :
+                  deal.risk === 'Medium' ? 'bg-yellow-900 text-yellow-300' :
+                  'bg-red-900 text-red-300'
+                }`}>
+                  {deal.risk} Risk
+                </span>
+              </div>
+              <p className="text-gray-400 mb-4">{deal.description}</p>
+              <div className="flex justify-between items-center mb-4">
+                <div className="text-sm text-gray-500">Timeline: {deal.timeline}</div>
+                <div className="text-sm text-green-400">ROI: {deal.roi}%</div>
+              </div>
+              <button
+                className="w-full btn btn-disabled bg-gray-800 text-gray-500"
+                disabled
+              >
+                Coming Soon
+              </button>
+            </div>
+          ))}
+        </div>
 
-        {/* Modals */}
-        <MissionCreator
-          show={showMissionCreator}
-          onClose={() => setShowMissionCreator(false)}
-        />
-        <CompanyCreator
-          show={showCompanyCreator}
-          onClose={() => setShowCompanyCreator(false)}
-        />
+        {/* Mission Creator Modal */}
+        <MissionCreator show={showMissionCreator} onClose={() => setShowMissionCreator(false)} />
+        
+        {/* Company Creator Modal */}
+        <CompanyCreator show={showCompanyCreator} onClose={() => setShowCompanyCreator(false)} />
       </div>
     </main>
   )

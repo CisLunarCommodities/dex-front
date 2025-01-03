@@ -18,15 +18,18 @@ export function IncubateForm({ show, onClose }: IncubateFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // TODO: Implement form submission logic
-    console.log({ 
-      email,
-      projectName,
-      xHandle,
-      website
-    })
+    // Construct mailto link with form data
+    const subject = encodeURIComponent(`Incubation Application: ${projectName}`)
+    const body = encodeURIComponent(`
+Project Name: ${projectName}
+Email: ${email}
+X Handle: ${xHandle}
+Website: ${website}
+    `)
     
-    toast.success('Application submitted successfully!')
+    window.location.href = `mailto:spaicexailonmusk@proton.me?subject=${subject}&body=${body}`
+    
+    toast.success('Redirecting to email client...')
     onClose()
   }
 
@@ -63,31 +66,27 @@ export function IncubateForm({ show, onClose }: IncubateFormProps) {
 
         <div>
           <label className="block text-sm font-medium text-blue-400 mb-2">
-            Project X Handle
+            X Handle
           </label>
-          <div className="flex items-center">
-            <span className="text-xl mr-2">@</span>
-            <input
-              type="text"
-              value={xHandle}
-              onChange={(e) => setXHandle(e.target.value)}
-              className="w-full px-4 py-2 bg-[#1a1b1e] border border-gray-800 rounded-lg focus:outline-none focus:border-purple-500"
-              placeholder="Enter project's X username"
-              required
-            />
-          </div>
+          <input
+            type="text"
+            value={xHandle}
+            onChange={(e) => setXHandle(e.target.value)}
+            className="w-full px-4 py-2 bg-[#1a1b1e] border border-gray-800 rounded-lg focus:outline-none focus:border-purple-500"
+            placeholder="@handle"
+          />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-blue-400 mb-2">
-            Project Website
+            Website
           </label>
           <input
             type="url"
             value={website}
             onChange={(e) => setWebsite(e.target.value)}
             className="w-full px-4 py-2 bg-[#1a1b1e] border border-gray-800 rounded-lg focus:outline-none focus:border-purple-500"
-            placeholder="Optional: Enter your project website"
+            placeholder="https://"
           />
         </div>
 

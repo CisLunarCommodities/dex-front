@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { ReactNode, useState, useRef, useEffect } from 'react'
 import { IconRocket, IconMenu2, IconX, IconBulb } from '@tabler/icons-react'
@@ -23,7 +24,13 @@ export function AppHeader() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2">
-              <IconRocket className="text-primary" size={24} />
+              <Image 
+                src="/cce.png" 
+                alt="CCE Logo" 
+                width={32} 
+                height={32} 
+                className="rounded-full"
+              />
               <span className="text-xl font-bold">CisLunar Commodities Exchange</span>
             </Link>
           </div>
