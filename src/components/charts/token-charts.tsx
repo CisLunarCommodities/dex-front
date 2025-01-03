@@ -33,17 +33,25 @@ export function TokenCharts() {
       try {
         if (H3_MINT_ADDRESS) {
           const supply = await fetchTokenSupply(H3_MINT_ADDRESS)
-          const date = new Date().toLocaleDateString()
+          const date = new Date().toLocaleDateString('en-US', { 
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+          })
           
-          setH3Data(prev => [...prev, supply].slice(-30))
-          setLabels(prev => [...prev, date].slice(-30))
+          // Keep only last 7 days of data
+          setH3Data(prev => [...prev, supply].slice(-7))
+          setLabels(prev => [...prev, date].slice(-7))
         }
       } catch (error) {
         console.error('Error fetching H3 supply:', error)
       }
     }
 
+    // Initial fetch
     fetchData()
+    
+    // Fetch every 24 hours
     const interval = setInterval(fetchData, 86400000)
     return () => clearInterval(interval)
   }, [])
@@ -64,6 +72,7 @@ export function TokenCharts() {
     },
     scales: {
       y: {
+        beginAtZero: true,
         grid: {
           color: 'rgba(255, 255, 255, 0.1)'
         },
@@ -73,7 +82,7 @@ export function TokenCharts() {
       },
       x: {
         grid: {
-          color: 'rgba(255, 255, 255, 0.1)'
+          display: false
         },
         ticks: {
           color: '#ffffff',
@@ -97,20 +106,23 @@ export function TokenCharts() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-4 bg-black">
-      <div className="bg-[#1a1b1e] p-4 rounded-lg h-[400px]">
+      <div className="bg-[#1a1b1e] p-4 rounded-lg">
         <h2 className="text-xl font-bold mb-4 text-white">LOX Price Chart</h2>
-        <iframe
-          height="100%"
-          width="100%"
-          title="LOX Chart"
-          src="https://www.defined.fi/sol/CEqfTHUBLdf4rPABDoMdTupRZYLsgQSvrf4vKicX5YVE?quoteToken=token0&embedded=1&hideTxTable=1&hideSidebar=1&hideChart=0&hideChartEmptyBars=1&chartSmoothing=0&embedColorMode=DEFAULT"
-          frameBorder="0"
-          allow="clipboard-write"
-        />
+        <div className="h-[320px] w-full">
+          <iframe
+            className="h-full w-full"
+            title="LOX Chart"
+            src="https://www.defined.fi/sol/CEqfTHUBLdf4rPABDoMdTupRZYLsgQSvrf4vKicX5YVE?quoteToken=token0&embedded=1&hideTxTable=1&hideSidebar=1&hideChart=0&hideChartEmptyBars=1&chartSmoothing=0&embedColorMode=DEFAULT"
+            frameBorder="0"
+            allow="clipboard-write"
+          />
+        </div>
       </div>
-      <div className="bg-[#1a1b1e] p-4 rounded-lg h-[400px]">
+      <div className="bg-[#1a1b1e] p-4 rounded-lg">
         <h2 className="text-xl font-bold mb-4 text-white">H3 Supply Chart</h2>
-        <Bar options={chartOptions} data={h3ChartData} />
+        <div className="h-[320px]">
+          <Bar options={chartOptions} data={h3ChartData} />
+        </div>
       </div>
     </div>
   )

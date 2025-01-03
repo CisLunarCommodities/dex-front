@@ -75,7 +75,7 @@ export default function HomePage() {
             </div>
             <h1 className="text-5xl font-bold mb-6">CisLunar Commodities Exchange</h1>
             <p className="text-xl text-gray-400 mb-8">
-              The first decentralized platform facilitating the trade of space resources 
+              Facilitating the trade of space resources 
               and investment in space-focused ventures.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
@@ -117,6 +117,28 @@ export default function HomePage() {
 
         {/* Charts Section */}
         <TokenCharts />
+
+        {/* Token Action Buttons */}
+        <div className="flex justify-center gap-4 mt-8 mb-8">
+          <a
+            href="https://www.daos.fun/G9d1PgcUULzaoRKpWkJEjJEs5way8YNu8zaaVuBkn86V"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-primary"
+          >
+            <IconRocket size={20} className="mr-2" />
+            BUY $LOX
+          </a>
+          <a
+            href="https://www.daos.fun/G9d1PgcUULzaoRKpWkJEjJEs5way8YNu8zaaVuBkn86V"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-secondary"
+          >
+            <IconPick size={20} className="mr-2" />
+            MINE $H3
+          </a>
+        </div>
 
         {/* Deals Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
