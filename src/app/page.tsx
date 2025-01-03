@@ -43,6 +43,7 @@ export default function HomePage() {
   const marketData = useMarketData()
   const [showMissionCreator, setShowMissionCreator] = useState(false)
   const [showCompanyCreator, setShowCompanyCreator] = useState(false)
+  const [filter, setFilter] = useState<'ALL' | 'MISSION' | 'COMPANY'>('ALL')
 
   useEffect(() => {
     const loadDeals = async () => {
@@ -57,6 +58,10 @@ export default function HomePage() {
 
     loadDeals()
   }, [])
+
+  const filteredDeals = deals.filter(deal => 
+    filter === 'ALL' ? true : deal.type === filter
+  )
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -140,9 +145,33 @@ export default function HomePage() {
           </a>
         </div>
 
-        {/* Deals Grid */}
+        {/* Filter Buttons */}
+        <div className="flex justify-center gap-4 mb-8">
+          <button
+            onClick={() => setFilter('ALL')}
+            className={`btn ${filter === 'ALL' ? 'btn-primary' : 'btn-ghost'}`}
+          >
+            All Deals
+          </button>
+          <button
+            onClick={() => setFilter('MISSION')}
+            className={`btn ${filter === 'MISSION' ? 'btn-primary' : 'btn-ghost'}`}
+          >
+            <IconRocket size={20} className="mr-2" />
+            Missions
+          </button>
+          <button
+            onClick={() => setFilter('COMPANY')}
+            className={`btn ${filter === 'COMPANY' ? 'btn-primary' : 'btn-ghost'}`}
+          >
+            <IconBuilding size={20} className="mr-2" />
+            Companies
+          </button>
+        </div>
+
+        {/* Deals Grid - Now using filteredDeals */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-          {deals.map((deal) => (
+          {filteredDeals.map((deal) => (
             <div key={deal.id} className="bg-[#1a1b1e] rounded-lg p-6">
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-xl font-bold">{deal.name}</h3>
