@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Bar } from 'react-chartjs-2'
+import dynamic from 'next/dynamic'
 import { fetchTokenSupply } from '@/lib/helius'
 import {
   Chart as ChartJS,
@@ -12,6 +12,12 @@ import {
   Tooltip,
   Legend
 } from 'chart.js'
+
+// Dynamically import Bar chart with no SSR
+const Bar = dynamic(
+  () => import('react-chartjs-2').then(mod => mod.Bar),
+  { ssr: false }
+)
 
 ChartJS.register(
   CategoryScale,
@@ -25,10 +31,12 @@ ChartJS.register(
 const H3_MINT_ADDRESS = process.env.NEXT_PUBLIC_H3_TOKEN_MINT
 
 export function TokenCharts() {
+  const [isClient, setIsClient] = useState(false)
   const [h3Data, setH3Data] = useState<number[]>([])
   const [labels, setLabels] = useState<string[]>([])
 
   useEffect(() => {
+    setIsClient(true)
     const fetchData = async () => {
       try {
         if (H3_MINT_ADDRESS) {
@@ -39,7 +47,6 @@ export function TokenCharts() {
             day: 'numeric'
           })
           
-          // Keep only last 7 days of data
           setH3Data(prev => [...prev, supply].slice(-7))
           setLabels(prev => [...prev, date].slice(-7))
         }
@@ -48,10 +55,7 @@ export function TokenCharts() {
       }
     }
 
-    // Initial fetch
     fetchData()
-    
-    // Fetch every 24 hours
     const interval = setInterval(fetchData, 86400000)
     return () => clearInterval(interval)
   }, [])
@@ -121,7 +125,7 @@ export function TokenCharts() {
       <div className="bg-[#1a1b1e] p-4 rounded-lg">
         <h2 className="text-xl font-bold mb-4 text-white">H3 Supply Chart</h2>
         <div className="h-[320px]">
-          <Bar options={chartOptions} data={h3ChartData} />
+          {isClient && <Bar options={chartOptions} data={h3ChartData} />}
         </div>
       </div>
     </div>
